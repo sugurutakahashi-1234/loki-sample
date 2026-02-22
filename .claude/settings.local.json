@@ -13,7 +13,12 @@
       "WebFetch(domain:pow.rs)",
       "WebFetch(domain:allurereport.org)",
       "Bash(bunx syncpack:*)",
-      "WebFetch(domain:syncpack.dev)"
+      "WebFetch(domain:syncpack.dev)",
+      "mcp__plugin_web-dev-plugin_chrome-devtools__take_screenshot",
+      "mcp__plugin_web-dev-plugin_chrome-devtools__take_snapshot",
+      "mcp__plugin_web-dev-plugin_chrome-devtools__list_console_messages",
+      "mcp__plugin_web-dev-plugin_chrome-devtools__navigate_page",
+      "mcp__plugin_web-dev-plugin_chrome-devtools__list_network_requests"
     ]
   }
 }

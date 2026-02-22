@@ -29,6 +29,10 @@ allure-report/
 .env.local
 .env.*.local
 
+# Next.js 自動生成ファイル（next dev / next build のたびに再生成される）
+# https://nextjs.org/docs/app/api-reference/config/typescript
+next-env.d.ts
+
 # OS 生成ファイル
 .DS_Store
 Thumbs.db

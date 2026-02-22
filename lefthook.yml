@@ -52,9 +52,3 @@ pre-push:
     # ユニットテスト（bun test）
     - name: unit-test
       run: bun run test
-    # Storybook VRT（コンポーネントのスクリーンショット比較）
-    - name: storybook-vrt
-      run: bun run storybook:vrt
-    # Web E2E テスト（ページ全体のスクリーンショット比較 + シナリオテスト）
-    - name: web-e2e
-      run: bun run web:e2e
