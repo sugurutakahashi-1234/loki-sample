@@ -1,0 +1,19 @@
+{
+  "name": "loki-sample",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "bun run --filter web dev",
+    "build": "bun run --filter web build",
+    "storybook": "bun run --filter @loki-sample/ui storybook",
+    "build-storybook": "bun run --filter @loki-sample/ui build-storybook",
+    "vrt": "bun run --filter @loki-sample/ui vrt",
+    "vrt:update": "bun run --filter @loki-sample/ui vrt:update",
+    "e2e": "bun run --filter web e2e",
+    "e2e:update": "bun run --filter web e2e:update"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "bun@1.3.9"
+}

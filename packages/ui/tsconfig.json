@@ -1,0 +1,17 @@
+{
+  // ルートの tsconfig.json を継承
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    // ビルド出力先ディレクトリ
+    "outDir": "./dist"
+  },
+  // src/ 配下のソースファイルのみをコンパイル対象とする
+  "include": ["src/**/*"],
+  // コンパイル対象から除外するディレクトリ
+  "exclude": [
+    "node_modules",
+    "dist",            // ビルド出力
+    "vrt",             // VRT テストファイル
+    "storybook-static" // Storybook のビルド出力
+  ]
+}

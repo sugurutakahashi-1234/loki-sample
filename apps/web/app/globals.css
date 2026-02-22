@@ -1,0 +1,9 @@
+/*
+ * Next.js アプリのグローバルスタイル
+ *
+ * Tailwind CSS のベーススタイルに加え、UI パッケージのスタイルを読み込む。
+ * UI パッケージのスタイルを読み込むことで、共有コンポーネントの Tailwind クラスが
+ * Next.js アプリ側でも正しく解決される。
+ */
+@import "tailwindcss";
+@import "@loki-sample/ui/styles.css";

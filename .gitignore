@@ -1,0 +1,35 @@
+# 依存パッケージ
+node_modules/
+
+# ビルド出力
+# Next.js ビルド出力
+.next/
+# Next.js 静的エクスポート出力
+out/
+# TypeScript コンパイル出力
+dist/
+# Storybook ビルド出力
+storybook-static/
+
+# Playwright テスト結果
+# テスト実行時の差分画像・スクリーンショット
+test-results/
+# HTML レポート
+playwright-report/
+# CI 用レポート
+blob-report/
+
+# 環境変数（機密情報を含むためコミットしない）
+.env
+.env.local
+.env.*.local
+
+# OS 生成ファイル
+.DS_Store
+Thumbs.db
+
+# IDE 設定
+.vscode/
+.idea/
+*.swp
+*.swo
