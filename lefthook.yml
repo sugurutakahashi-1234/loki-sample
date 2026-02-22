@@ -14,9 +14,8 @@ pre-commit:
     # Biome によるリント + フォーマット自動修正（修正後に再ステージ）
     - name: lint-fix
       run: bunx biome check --write {staged_files}
-      glob:
-        - "**/*.{js,jsx,ts,tsx,json,jsonc,css}"
-        - "!**/next-env.d.ts"
+      glob: "**/*.{js,jsx,ts,tsx,json,jsonc,css}"
+      exclude: "**/next-env.d.ts"
       stage_fixed: true
     # コンフリクトマーカー（<<<<<<< 等）の残存チェック
     - name: conflict-markers
