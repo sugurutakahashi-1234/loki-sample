@@ -8,11 +8,12 @@
 #   - web-e2e.yml（Web アプリ E2E テスト）
 #
 # 処理フロー:
-#   1. セットアップ（checkout / bun / Playwright / dependencies）
-#   2. ベースライン生成 → ビルド → テスト実行
-#   3. レポート生成（Allure / reg-cli）
-#   4. アップロード＆デプロイ（Artifacts / GitHub Pages）
-#   5. PR コメント（レポートリンク付き）
+#   1. [test ジョブ] セットアップ → テスト実行 → レポート生成 → アーティファクトアップロード
+#   2. [deploy ジョブ] GitHub Pages デプロイ → PR コメント
+#
+# concurrency 設計:
+#   test ジョブは concurrency なし（VRT と E2E が並列実行可能）。
+#   deploy ジョブのみ concurrency: gh-pages-deploy（デプロイだけ直列化）。
 name: Playwright Test
 
 on:
@@ -49,11 +50,8 @@ jobs:
   test:
     name: ${{ inputs.report-title }}
     runs-on: ubuntu-latest
-    # gh-pages ブランチへの push が競合しないようにキューイング
-    # （VRT と E2E が同時実行されても deploy は順番に処理される）
-    concurrency:
-      group: gh-pages-deploy
-      cancel-in-progress: false
+    outputs:
+      vrt-table: ${{ steps.reg-result.outputs.vrt-table }}
     steps:
       # ────────────────────────────────────────
       # セットアップ
@@ -221,12 +219,40 @@ jobs:
           cp -r allure-report/history/* _gh-pages-staging/latest/${{ inputs.test-type }}/allure-history/ || true
         working-directory: ${{ inputs.working-directory }}
 
-      - name: Deploy reports to GitHub Pages
+      # deploy ジョブに渡すためのアーティファクト（ステージング済みディレクトリ一式）
+      - name: Upload deploy payload
         if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.test-type }}-deploy-payload
+          path: ${{ inputs.working-directory }}/_gh-pages-staging/
+          retention-days: 1
+
+  # ────────────────────────────────────────
+  # デプロイ（gh-pages への push のみ直列化）
+  # ────────────────────────────────────────
+  deploy:
+    name: Deploy ${{ inputs.report-title }}
+    needs: test
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    # gh-pages ブランチへの push が競合しないようにキューイング
+    # （VRT と E2E が同時実行されても deploy は順番に処理される）
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Download deploy payload
+        uses: actions/download-artifact@v6
+        with:
+          name: ${{ inputs.test-type }}-deploy-payload
+          path: _gh-pages-staging/
+
+      - name: Deploy reports to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ inputs.working-directory }}/_gh-pages-staging
+          publish_dir: _gh-pages-staging
           keep_files: true
 
       # ────────────────────────────────────────
@@ -243,7 +269,7 @@ jobs:
           message: |
             ## ${{ inputs.report-title }}
 
-            ${{ steps.reg-result.outputs.vrt-table }}
+            ${{ needs.test.outputs.vrt-table }}
 
             | Report | Link |
             |--------|------|
