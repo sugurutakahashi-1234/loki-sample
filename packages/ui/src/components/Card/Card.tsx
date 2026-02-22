@@ -2,10 +2,10 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 /** Card コンポーネントの Props */
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  /** カードのスタイルバリアント（デフォルト: default） */
-  variant?: "default" | "outlined";
   /** カードのヘッダー部分に表示するコンテンツ（省略可） */
   header?: ReactNode;
+  /** カードのスタイルバリアント（デフォルト: default） */
+  variant?: "default" | "outlined";
 }
 
 /** バリアントごとの Tailwind CSS クラス定義 */
@@ -30,11 +30,11 @@ export function Card({
 }: CardProps) {
   return (
     <div
-      className={`rounded-lg overflow-hidden ${variantStyles[variant]} ${className}`}
+      className={`overflow-hidden rounded-lg ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {header && (
-        <div className="px-6 py-4 border-b border-gray-100 font-semibold text-gray-900">
+        <div className="border-gray-100 border-b px-6 py-4 font-semibold text-gray-900">
           {header}
         </div>
       )}

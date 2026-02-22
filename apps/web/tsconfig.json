@@ -21,7 +21,8 @@
     // 例: import Foo from "@/components/Foo"
     "paths": {
       "@/*": ["./app/*"]
-    }
+    },
+    "strictNullChecks": true
   },
   // コンパイル対象のファイル
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

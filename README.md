@@ -10,6 +10,7 @@ Playwright を使ったビジュアルリグレッションテスト（VRT）と
 | Storybook 10 | コンポーネントカタログ |
 | Playwright | VRT + E2E テスト |
 | Tailwind CSS v4 | スタイリング |
+| Ultracite (Biome) | リンター + フォーマッター |
 | bun | パッケージマネージャー + モノレポ管理 |
 | TypeScript | 型安全性 |
 
@@ -51,6 +52,16 @@ bun run storybook
 bun run dev
 ```
 
+### リント & フォーマット
+
+```bash
+# リント + フォーマットチェック（CI 用）
+bun run check
+
+# リント + フォーマット自動修正（ローカル開発用）
+bun run fix
+```
+
 ## テスト
 
 ### Storybook VRT（ビジュアルリグレッションテスト）
@@ -89,6 +100,7 @@ bun run e2e:update
 
 PR 作成時に GitHub Actions が自動実行されます。
 
+- **Lint & Format** (`lint.yml`): 全 PR で Biome によるリント + フォーマットチェック
 - **Storybook VRT** (`vrt.yml`): `packages/ui/` の変更時に実行
 - **E2E テスト** (`e2e.yml`): `apps/web/` または `packages/ui/` の変更時に実行
 

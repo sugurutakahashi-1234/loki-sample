@@ -23,23 +23,17 @@ test.describe("Button", () => {
   });
 
   test("Danger", async ({ page }) => {
-    await page.goto(
-      "/iframe.html?id=components-button--danger&viewMode=story"
-    );
+    await page.goto("/iframe.html?id=components-button--danger&viewMode=story");
     await expect(page.locator("#storybook-root")).toHaveScreenshot();
   });
 
   test("Small", async ({ page }) => {
-    await page.goto(
-      "/iframe.html?id=components-button--small&viewMode=story"
-    );
+    await page.goto("/iframe.html?id=components-button--small&viewMode=story");
     await expect(page.locator("#storybook-root")).toHaveScreenshot();
   });
 
   test("Large", async ({ page }) => {
-    await page.goto(
-      "/iframe.html?id=components-button--large&viewMode=story"
-    );
+    await page.goto("/iframe.html?id=components-button--large&viewMode=story");
     await expect(page.locator("#storybook-root")).toHaveScreenshot();
   });
 

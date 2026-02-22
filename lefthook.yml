@@ -1,0 +1,36 @@
+# ==============================================
+# Git Hooks 設定（Lefthook）
+# ==============================================
+# pre-commit: ステージされたファイルのみ対象（高速）
+# pre-push:   プロジェクト全体を対象（プッシュ前の最終チェック）
+# ==============================================
+
+# コミット時: ステージされたファイルに対して実行
+pre-commit:
+  parallel: true
+  jobs:
+    # Biome によるリント + フォーマット自動修正（修正後に再ステージ）
+    - name: lint-fix
+      run: bun x ultracite fix {staged_files}
+      glob:
+        - "**/*.{js,jsx,ts,tsx,json,jsonc,css}"
+      stage_fixed: true
+    # コンフリクトマーカー（<<<<<<< 等）の残存チェック
+    - name: conflict-markers
+      run: grep -rn '<<<<<<< \|======= \|>>>>>>> ' {staged_files} && echo "コンフリクトマーカーが残っています" && exit 1 || exit 0
+      glob:
+        - "**/*.{js,jsx,ts,tsx,json,jsonc,css,md,yml,yaml}"
+    # .env ファイルの誤コミット防止
+    - name: no-secrets
+      run: git diff --cached --name-only | grep -E '\.env($|\.)' && echo ".env ファイルはコミットできません" && exit 1 || exit 0
+
+# プッシュ時: プロジェクト全体に対して実行
+pre-push:
+  parallel: true
+  jobs:
+    # Biome によるリント + フォーマットチェック（修正なし、CI と同等）
+    - name: lint-check
+      run: bun run check
+    # Next.js ビルド（TypeScript 型チェック含む）
+    - name: typecheck
+      run: bun run build

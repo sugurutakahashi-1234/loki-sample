@@ -62,6 +62,6 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
 
     // Storybook の起動待ちタイムアウト（2分）
-    timeout: 120000,
+    timeout: 120_000,
   },
 });

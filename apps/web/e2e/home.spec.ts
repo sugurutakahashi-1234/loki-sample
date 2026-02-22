@@ -35,9 +35,7 @@ test.describe("Home Page", () => {
   test("ボタンコンポーネントが表示される", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("button", { name: "Primary" })).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Secondary" })
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Secondary" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Danger" })).toBeVisible();
   });
 });
