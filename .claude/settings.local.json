@@ -7,7 +7,10 @@
       "Bash(bunx lefthook:*)",
       "Bash(bunx biome:*)",
       "Bash(git:*)",
-      "Bash(mise latest:*)"
+      "Bash(mise latest:*)",
+      "WebFetch(domain:argos-ci.com)",
+      "WebFetch(domain:www.chromatic.com)",
+      "WebFetch(domain:pow.rs)"
     ]
   }
 }

@@ -9,7 +9,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "e2e": "bunx playwright test",
-    "e2e:update": "bunx playwright test --update-snapshots"
+    "e2e:update-snapshots": "node -e \"require('fs').rmSync('e2e/screenshots/'+process.platform,{recursive:true,force:true})\" && bunx playwright test --update-snapshots"
   },
   "dependencies": {
     "next": "^16.1.6",

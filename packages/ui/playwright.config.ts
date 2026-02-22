@@ -4,8 +4,8 @@
  * Storybook で描画されたコンポーネントのスクリーンショットを撮影し、
  * リファレンス画像と比較することで意図しない見た目の変更を検出する。
  *
- * 実行: bun run vrt
- * リファレンス画像更新: bun run vrt:update
+ * 実行: bun run storybook:vrt
+ * リファレンス画像更新: bun run storybook:vrt:update-snapshots:local
  */
 import { defineConfig } from "@playwright/test";
 
@@ -17,8 +17,8 @@ export default defineConfig({
   snapshotDir: "./vrt/screenshots",
 
   // スナップショットのファイルパステンプレート
-  // 例: vrt/screenshots/button.spec.ts/Button-Primary-1.png
-  snapshotPathTemplate: "{snapshotDir}/{testFilePath}/{arg}{ext}",
+  // 例: vrt/screenshots/darwin/Components/Button/Primary.png
+  snapshotPathTemplate: "{snapshotDir}/{platform}/{arg}{ext}",
 
   // テストを並列実行する（独立したコンポーネントのスクリーンショットなので並列で問題ない）
   fullyParallel: true,
@@ -51,17 +51,11 @@ export default defineConfig({
     },
   },
 
-  // テスト実行前に Storybook を自動起動する設定
+  // ビルド済み Storybook を http-server で配信（index.json の読み取りにビルドが必要）
   webServer: {
-    // --ci フラグで Storybook をインタラクティブモードなしで起動
-    command: "bun run storybook -- --ci",
+    command: "bunx http-server storybook-static --port 6006 --silent",
     url: "http://localhost:6006",
-
-    // ローカルでは既に起動済みの Storybook を再利用（開発効率向上）
-    // CI では常に新規起動（クリーンな環境を保証）
     reuseExistingServer: !process.env.CI,
-
-    // Storybook の起動待ちタイムアウト（2分）
-    timeout: 120_000,
+    timeout: 30_000,
   },
 });

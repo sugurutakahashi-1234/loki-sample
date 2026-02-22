@@ -28,7 +28,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  update-snapshots:
+  # スナップショット更新は Playwright Docker コンテナ内で実行
+  update:
     name: Update Snapshots
     runs-on: ubuntu-latest
     container:
@@ -49,14 +50,9 @@ jobs:
         run: bun install --frozen-lockfile
 
       # --- VRT ---
-      - name: Build Storybook
-        if: inputs.target == 'vrt' || inputs.target == 'both'
-        run: bun run build-storybook
-        working-directory: packages/ui
-
       - name: Update VRT snapshots
         if: inputs.target == 'vrt' || inputs.target == 'both'
-        run: bunx playwright test --update-snapshots
+        run: bun run vrt:update-snapshots
         working-directory: packages/ui
         env:
           CI: true
@@ -69,10 +65,35 @@ jobs:
 
       - name: Update E2E snapshots
         if: inputs.target == 'e2e' || inputs.target == 'both'
-        run: bunx playwright test --update-snapshots
+        run: bun run e2e:update-snapshots
         working-directory: apps/web
         env:
           CI: true
+
+      # 更新されたスナップショットを Artifact として保存
+      - name: Upload updated snapshots
+        uses: actions/upload-artifact@v6
+        with:
+          name: updated-snapshots
+          path: |
+            packages/ui/vrt/screenshots/
+            apps/web/e2e/screenshots/
+
+  # PR 作成はコンテナ外で実行（peter-evans/create-pull-request がコンテナ内の git で失敗するため）
+  create-pr:
+    name: Create Pull Request
+    needs: update
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+
+      # Artifact からスナップショットをダウンロードして上書き
+      - name: Download updated snapshots
+        uses: actions/download-artifact@v7
+        with:
+          name: updated-snapshots
 
       - name: Set timestamp
         id: timestamp

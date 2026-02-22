@@ -69,32 +69,71 @@ bun run lint:fix
 コンポーネントの見た目が意図せず変わっていないかをスクリーンショット比較で検証します。
 
 ```bash
-# VRT 実行（Storybook が自動起動）
-bun run vrt
-
-# リファレンス画像を更新
-bun run vrt:update
+# VRT テスト実行（Storybook ビルド + スクリーンショット比較）
+bun run storybook:vrt
 ```
 
 ### E2E テスト
 
-Next.js アプリに対するシナリオベースのテストです。
+Next.js アプリに対するシナリオベースのテスト + ページ全体のスクリーンショット比較です。
 
 ```bash
 # E2E テスト実行（Next.js dev サーバーが自動起動）
-bun run e2e
-
-# リファレンス画像を更新
-bun run e2e:update
+bun run web:e2e
 ```
 
-## VRT ワークフロー
+### スナップショット更新
 
-1. `bun run vrt` でテスト実行 → 全テストパス
+スナップショット（リファレンス画像）は OS ごとに分離管理されています（`darwin/` と `linux/`）。
+`update-snapshots` コマンドを使うと、ローカル（macOS）と Docker（Linux/CI 用）の両方を一括更新できます。
+
+更新時は該当プラットフォームのスクリーンショットディレクトリを事前削除してから再生成するため、ストーリーの削除やリネーム後に古いファイルが残ることはありません。
+
+```bash
+# 全部まとめて更新（VRT + E2E、ローカル + Docker）
+bun run update-snapshots
+
+# VRT のみ更新（ローカル + Docker）
+bun run storybook:vrt:update-snapshots
+
+# E2E のみ更新（ローカル + Docker）
+bun run web:e2e:update-snapshots
+```
+
+個別のプラットフォームだけ更新したい場合:
+
+```bash
+# VRT: ローカル（darwin）のみ / Docker（linux）のみ
+bun run storybook:vrt:update-snapshots:local
+bun run storybook:vrt:update-snapshots:docker
+
+# E2E: ローカル（darwin）のみ / Docker（linux）のみ
+bun run web:e2e:update-snapshots:local
+bun run web:e2e:update-snapshots:docker
+```
+
+### VRT ワークフロー
+
+1. `bun run storybook:vrt` でテスト実行 → 全テストパス
 2. コンポーネントのスタイルを変更
-3. `bun run vrt` で再テスト → 差分検出で失敗
-4. 変更が意図通りなら `bun run vrt:update` で新しいリファレンス画像を承認
+3. `bun run storybook:vrt` で再テスト → 差分検出で失敗
+4. 変更が意図通りなら `bun run update-snapshots` でリファレンス画像を再生成
 5. リファレンス画像をコミット
+
+## Git Hooks（Lefthook）
+
+| フック | ジョブ | 内容 |
+|-------|--------|------|
+| pre-commit | lint-fix | Biome によるリント + フォーマット自動修正 |
+| pre-commit | conflict-markers | コンフリクトマーカーの残存チェック |
+| pre-commit | no-secrets | .env ファイルの誤コミット防止 |
+| pre-push | lint-check | Biome リント + フォーマットチェック（CI 同等） |
+| pre-push | typecheck | TypeScript 型チェック |
+| pre-push | build | Next.js ビルド |
+| pre-push | playwright-version-check | Playwright バージョン整合性チェック |
+| pre-push | bun-version-check | bun バージョン整合性チェック |
+| pre-push | storybook-vrt | Storybook VRT（コンポーネントのスクリーンショット比較） |
+| pre-push | web-e2e | Web E2E テスト（ページ全体のスクリーンショット比較 + シナリオテスト） |
 
 ## CI/CD
 

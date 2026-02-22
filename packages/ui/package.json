@@ -13,8 +13,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "typecheck": "tsc --noEmit",
-    "vrt": "bunx playwright test",
-    "vrt:update": "bunx playwright test --update-snapshots"
+    "vrt": "storybook build && bunx playwright test",
+    "vrt:update-snapshots": "storybook build && node -e \"require('fs').rmSync('vrt/screenshots/'+process.platform,{recursive:true,force:true})\" && bunx playwright test --update-snapshots"
   },
   "dependencies": {
     "react": "^19.2.4",

@@ -46,3 +46,9 @@ pre-push:
     # bun バージョン整合性チェック（packageManager vs インストール済みバージョン）
     - name: bun-version-check
       run: bun run scripts/check-bun-version.ts
+    # Storybook VRT（コンポーネントのスクリーンショット比較）
+    - name: storybook-vrt
+      run: bun run storybook:vrt
+    # Web E2E テスト（ページ全体のスクリーンショット比較 + シナリオテスト）
+    - name: web-e2e
+      run: bun run web:e2e
