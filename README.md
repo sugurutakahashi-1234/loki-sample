@@ -210,6 +210,7 @@ https://<owner>.github.io/<repo>/pr/<pr-number>/
 │   └── reg-report/        # Storybook VRT - reg-cli 差分レポート
 │       ├── report/        #   HTML レポート（index.html）
 │       ├── actual/        #   実際のスクリーンショット
+│       ├── expected/      #   ベースラインのスクリーンショット
 │       └── diff/          #   差分画像
 └── e2e/
     ├── html-report/       # E2E - Playwright HTML レポート
@@ -217,6 +218,7 @@ https://<owner>.github.io/<repo>/pr/<pr-number>/
     └── reg-report/        # E2E - reg-cli 差分レポート
         ├── report/        #   HTML レポート（index.html）
         ├── actual/        #   実際のスクリーンショット
+        ├── expected/      #   ベースラインのスクリーンショット
         └── diff/          #   差分画像
 ```
 
