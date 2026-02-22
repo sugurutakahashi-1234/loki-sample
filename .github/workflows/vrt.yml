@@ -124,13 +124,13 @@ jobs:
           VRT_TABLE="| Status | Count |
           |--------|-------|"
           [ "$CHANGED" -gt 0 ] && VRT_TABLE="$VRT_TABLE
-          | Changed | $CHANGED |"
+          | 🔴 Changed | $CHANGED |"
           [ "$PASSED" -gt 0 ] && VRT_TABLE="$VRT_TABLE
-          | Passed | $PASSED |"
+          | 🟢 Passed | $PASSED |"
           [ "$NEW" -gt 0 ] && VRT_TABLE="$VRT_TABLE
-          | New | $NEW |"
+          | 🆕 New | $NEW |"
           [ "$DELETED" -gt 0 ] && VRT_TABLE="$VRT_TABLE
-          | Deleted | $DELETED |"
+          | 🗑️ Deleted | $DELETED |"
 
           echo "vrt-table<<EOF" >> $GITHUB_OUTPUT
           echo "$VRT_TABLE" >> $GITHUB_OUTPUT
@@ -143,24 +143,11 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: packages/ui/.reg/report
+          publish_dir: packages/ui/.reg
           destination_dir: ${{ env.REPORT_PREFIX }}/vrt/reg-report
           keep_files: true
 
-      # PR に reg-cli レポートリンクをコメント
-      - name: Comment PR with reg-cli results
-        if: always()
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: vrt-reg-report
-          message: |
-            ## Storybook VRT - reg-cli Report
-
-            ${{ steps.reg-result.outputs.vrt-table }}
-
-            **View Report**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ env.REPORT_PREFIX }}/vrt/reg-report/
-
-      # PR にレポートへのリンクをコメント
+      # PR にレポートリンクをコメント
       - name: Comment PR with report links
         if: always()
         uses: marocchino/sticky-pull-request-comment@v2
@@ -169,8 +156,11 @@ jobs:
           message: |
             ## Storybook VRT Report
 
+            ${{ steps.reg-result.outputs.vrt-table }}
+
             | Report | Link |
             |--------|------|
+            | reg-cli | https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ env.REPORT_PREFIX }}/vrt/reg-report/report/ |
             | Playwright HTML | https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ env.REPORT_PREFIX }}/vrt/html-report/ |
             | Allure | https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ env.REPORT_PREFIX }}/vrt/allure-report/ |
 

@@ -208,10 +208,16 @@ https://<owner>.github.io/<repo>/pr/<pr-number>/
 │   ├── html-report/      # Storybook VRT - Playwright HTML レポート
 │   ├── allure-report/     # Storybook VRT - Allure レポート
 │   └── reg-report/        # Storybook VRT - reg-cli 差分レポート
+│       ├── report/        #   HTML レポート（index.html）
+│       ├── actual/        #   実際のスクリーンショット
+│       └── diff/          #   差分画像
 └── e2e/
     ├── html-report/       # E2E - Playwright HTML レポート
     ├── allure-report/     # E2E - Allure レポート
     └── reg-report/        # E2E - reg-cli 差分レポート
+        ├── report/        #   HTML レポート（index.html）
+        ├── actual/        #   実際のスクリーンショット
+        └── diff/          #   差分画像
 ```
 
 `workflow_dispatch` で手動実行した場合は `manual/<run-id>/` 配下にデプロイされます。
