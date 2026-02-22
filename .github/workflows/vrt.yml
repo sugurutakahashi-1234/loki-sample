@@ -23,6 +23,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Playwright Docker イメージに unzip が未同梱のため追加（setup-bun に必要）
+      - run: apt-get update && apt-get install -y unzip
+
       # bun をセットアップ（パッケージマネージャー）
       - uses: oven-sh/setup-bun@v2
         with:
