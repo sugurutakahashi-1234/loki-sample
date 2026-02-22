@@ -23,7 +23,10 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+
+      # Playwright Docker イメージに unzip が未同梱のため追加（setup-bun に必要）
+      - run: apt-get update && apt-get install -y unzip
 
       # bun をセットアップ（パッケージマネージャー）
       - uses: oven-sh/setup-bun@v2
@@ -49,7 +52,7 @@ jobs:
       # テスト失敗時: 差分画像を含むテスト結果をアップロード
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: e2e-report
           path: apps/web/test-results/
@@ -58,7 +61,7 @@ jobs:
       # 常時: HTML レポートをアップロード（テスト結果の詳細確認用）
       - name: Upload HTML report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: e2e-html-report
           path: apps/web/playwright-report/

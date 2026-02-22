@@ -10,8 +10,7 @@ import "./globals.css";
 /** サイト全体のメタデータ（<title> や <meta> タグに反映される） */
 export const metadata: Metadata = {
   title: "Loki Sample - Playwright VRT Demo",
-  description:
-    "Playwright VRT + Storybook sample project with Next.js",
+  description: "Playwright VRT + Storybook sample project with Next.js",
 };
 
 export default function RootLayout({

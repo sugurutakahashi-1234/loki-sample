@@ -1,7 +1,10 @@
 {
   "name": "loki-sample",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "bun run --filter web dev",
     "build": "bun run --filter web build",
@@ -10,10 +13,18 @@
     "vrt": "bun run --filter @loki-sample/ui vrt",
     "vrt:update": "bun run --filter @loki-sample/ui vrt:update",
     "e2e": "bun run --filter web e2e",
-    "e2e:update": "bun run --filter web e2e:update"
+    "e2e:update": "bun run --filter web e2e:update",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "prepare": "test -n \"$CI\" || lefthook install",
+    "outdated": "bun outdated",
+    "update-deps": "bun update --latest && bun update --latest --filter '*'"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@biomejs/biome": "^2.4.4",
+    "lefthook": "^2.1.1",
+    "typescript": "^5.9.3",
+    "ultracite": "7.2.3"
   },
   "packageManager": "bun@1.3.9"
 }

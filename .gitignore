@@ -28,6 +28,9 @@ blob-report/
 .DS_Store
 Thumbs.db
 
+# Biome キャッシュ
+.biome/
+
 # IDE 設定
 .vscode/
 .idea/

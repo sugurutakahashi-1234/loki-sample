@@ -2,10 +2,10 @@ import type { ButtonHTMLAttributes } from "react";
 
 /** Button コンポーネントの Props */
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /** ボタンのスタイルバリアント（デフォルト: primary） */
-  variant?: "primary" | "secondary" | "danger";
   /** ボタンのサイズ（デフォルト: md） */
   size?: "sm" | "md" | "lg";
+  /** ボタンのスタイルバリアント（デフォルト: primary） */
+  variant?: "primary" | "secondary" | "danger";
 }
 
 /** バリアントごとの Tailwind CSS クラス定義 */
@@ -37,7 +37,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
       {...props}
     >
       {children}

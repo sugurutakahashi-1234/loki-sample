@@ -9,16 +9,16 @@ import { Badge, Button, Card } from "@loki-sample/ui";
 export default function Home() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="mb-8 text-4xl font-bold">
+      <h1 className="mb-8 font-bold text-4xl">
         Playwright VRT + Storybook Demo
       </h1>
-      <p className="mb-12 text-lg text-gray-600">
+      <p className="mb-12 text-gray-600 text-lg">
         Playwrightを使ったビジュアルリグレッションテスト（VRT）とE2Eテストのサンプルプロジェクトです。
       </p>
 
       {/* Button コンポーネントのデモ: バリアント（Primary/Secondary/Danger）とサイズ（S/M/L） */}
       <section className="mb-12">
-        <h2 className="mb-4 text-2xl font-semibold">Button</h2>
+        <h2 className="mb-4 font-semibold text-2xl">Button</h2>
         <div className="flex flex-wrap gap-4">
           <Button variant="primary">Primary</Button>
           <Button variant="secondary">Secondary</Button>
@@ -33,12 +33,12 @@ export default function Home() {
 
       {/* Card コンポーネントのデモ: Default（シャドウ）と Outlined（ボーダー） */}
       <section className="mb-12">
-        <h2 className="mb-4 text-2xl font-semibold">Card</h2>
+        <h2 className="mb-4 font-semibold text-2xl">Card</h2>
         <div className="grid gap-6 md:grid-cols-2">
           <Card header="Default Card">
             シャドウ付きのデフォルトカードです。様々なコンテンツを格納できます。
           </Card>
-          <Card variant="outlined" header="Outlined Card">
+          <Card header="Outlined Card" variant="outlined">
             ボーダー付きのアウトラインカードです。軽い印象を与えます。
           </Card>
         </div>
@@ -46,7 +46,7 @@ export default function Home() {
 
       {/* Badge コンポーネントのデモ: Info/Success/Warning/Error の4バリアント */}
       <section className="mb-12">
-        <h2 className="mb-4 text-2xl font-semibold">Badge</h2>
+        <h2 className="mb-4 font-semibold text-2xl">Badge</h2>
         <div className="flex flex-wrap gap-3">
           <Badge variant="info">Info</Badge>
           <Badge variant="success">Success</Badge>

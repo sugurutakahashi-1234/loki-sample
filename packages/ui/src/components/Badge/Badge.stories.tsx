@@ -47,7 +47,8 @@ export const Warning: Story = {
 };
 
 /** Error バリアント（赤系） */
-export const Error: Story = {
+export const ErrorVariant: Story = {
+  name: "Error",
   args: {
     children: "Error",
     variant: "error",
