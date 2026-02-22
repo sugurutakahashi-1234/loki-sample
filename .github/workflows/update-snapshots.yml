@@ -1,13 +1,13 @@
 # リファレンス画像更新ワークフロー
 #
 # VRT / E2E のリファレンス画像を CI 環境（Playwright Docker）で再生成し、
-# ブランチにコミット・プッシュする。手動トリガー（workflow_dispatch）専用。
+# PR を作成する。手動トリガー（workflow_dispatch）専用。
 #
 # 使い方:
 #   1. GitHub Actions の画面から「Run workflow」を実行
 #   2. 対象ブランチを選択
 #   3. 更新対象（VRT / E2E / 両方）を選択
-#   4. 完了後、更新されたリファレンス画像が自動コミットされる
+#   4. 完了後、リファレンス画像を更新する PR が作成される
 name: Update Snapshots
 
 on:
@@ -22,6 +22,10 @@ on:
           - vrt
           - e2e
           - both
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   update-vrt:
@@ -100,9 +104,9 @@ jobs:
           name: e2e-snapshots
           path: apps/web/e2e/screenshots/
 
-  # Docker コンテナ外でコミット・プッシュ（git の safe.directory 問題を回避）
-  commit:
-    name: Commit Updated Snapshots
+  # Docker コンテナ外で PR を作成（git の safe.directory 問題を回避）
+  create-pr:
+    name: Create Pull Request
     needs: [update-vrt, update-e2e]
     if: always() && !cancelled() && (needs.update-vrt.result == 'success' || needs.update-e2e.result == 'success')
     runs-on: ubuntu-latest
@@ -127,12 +131,14 @@ jobs:
           name: e2e-snapshots
           path: apps/web/e2e/screenshots/
 
-      # 更新があればコミット・プッシュ
-      - name: Commit and push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add packages/ui/vrt/screenshots/ apps/web/e2e/screenshots/
-          git diff --cached --quiet && echo "No changes to commit" && exit 0
-          git commit -m "chore: CI 環境でリファレンス画像を更新"
-          git push
+      # 変更があればブランチを作成して PR を作る
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: chore/update-snapshots/${{ github.ref_name }}
+          commit-message: "chore: CI 環境でリファレンス画像を更新"
+          title: "chore: CI 環境でリファレンス画像を更新"
+          body: "このPRはCI環境で再生成されたリファレンス画像を含みます。画像の差分を確認してからマージしてください。"
+          add-paths: |
+            packages/ui/vrt/screenshots/
+            apps/web/e2e/screenshots/
