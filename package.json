@@ -16,7 +16,7 @@
     "e2e:update": "bun run --filter web e2e:update",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "prepare": "lefthook install",
+    "prepare": "test -n \"$CI\" || lefthook install",
     "outdated": "bun outdated",
     "update-deps": "bun update --latest && bun update --latest --filter '*'"
   },
