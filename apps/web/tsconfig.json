@@ -20,7 +20,8 @@
     // パスエイリアス: @/ で app/ ディレクトリを参照可能にする
     // 例: import Foo from "@/components/Foo"
     "paths": {
-      "@/*": ["./app/*"]
+      "@/*": ["./app/*"],
+      "@ui/*": ["../../packages/ui/src/*"]
     },
     "strictNullChecks": true
   },

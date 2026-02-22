@@ -1,7 +1,13 @@
+import { cn } from "@ui/utils/cn";
+import { formatCount } from "@ui/utils/format-count";
 import type { HTMLAttributes } from "react";
 
 /** Badge コンポーネントの Props */
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
+  /** 表示する件数（指定時は formatCount でフォーマットされる） */
+  count?: number;
+  /** 件数の表示上限（デフォルト: 99）。超過時は "99+" のように表示 */
+  maxCount?: number;
   /** バッジのスタイルバリアント（デフォルト: info） */
   variant?: "info" | "success" | "warning" | "error";
 }
@@ -22,16 +28,25 @@ const variantStyles: Record<string, string> = {
  */
 export function Badge({
   variant = "info",
-  className = "",
+  className,
+  count,
+  maxCount,
   children,
   ...props
 }: BadgeProps) {
+  const formattedCount =
+    count !== undefined ? formatCount(count, maxCount) : undefined;
+
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-medium text-xs ${variantStyles[variant]} ${className}`}
+      className={cn(
+        "inline-flex items-center rounded-full px-2.5 py-0.5 font-medium text-xs",
+        variantStyles[variant],
+        className
+      )}
       {...props}
     >
-      {children}
+      {formattedCount || children}
     </span>
   );
 }

@@ -16,6 +16,7 @@ pre-commit:
       run: bunx biome check --write {staged_files}
       glob:
         - "**/*.{js,jsx,ts,tsx,json,jsonc,css}"
+        - "!**/next-env.d.ts"
       stage_fixed: true
     # コンフリクトマーカー（<<<<<<< 等）の残存チェック
     - name: conflict-markers
@@ -46,6 +47,9 @@ pre-push:
     # bun バージョン整合性チェック（packageManager vs インストール済みバージョン）
     - name: bun-version-check
       run: bun run scripts/check-bun-version.ts
+    # ユニットテスト（bun test）
+    - name: unit-test
+      run: bun run test
     # Storybook VRT（コンポーネントのスクリーンショット比較）
     - name: storybook-vrt
       run: bun run storybook:vrt

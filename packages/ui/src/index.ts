@@ -14,3 +14,7 @@ export { Button } from "./components/Button";
 export type { CardProps } from "./components/Card";
 // Card コンポーネント: Default（シャドウ）/ Outlined（ボーダー）の2バリアント
 export { Card } from "./components/Card";
+// ユーティリティ: クラス名結合（clsx + tailwind-merge）
+export { cn } from "./utils/cn";
+// ユーティリティ: カウント表示フォーマット
+export { formatCount } from "./utils/format-count";

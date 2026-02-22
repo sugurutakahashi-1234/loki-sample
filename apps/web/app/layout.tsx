@@ -6,10 +6,11 @@
  */
 import type { Metadata } from "next";
 import "./globals.css";
+import { formatPageTitle } from "./utils/format";
 
 /** サイト全体のメタデータ（<title> や <meta> タグに反映される） */
 export const metadata: Metadata = {
-  title: "Loki Sample - Playwright VRT Demo",
+  title: formatPageTitle(),
   description: "Playwright VRT + Storybook sample project with Next.js",
 };
 

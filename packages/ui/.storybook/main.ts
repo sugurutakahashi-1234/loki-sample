@@ -4,6 +4,7 @@
  * Storybook の基本構成を定義する。
  * フレームワーク、ストーリーの探索パス、Vite プラグインなどを設定。
  */
+import path from "node:path";
 import type { StorybookConfig } from "@storybook/react-vite";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -20,6 +21,12 @@ const config: StorybookConfig = {
   viteFinal(config) {
     config.plugins = config.plugins || [];
     config.plugins.push(tailwindcss());
+    // tsconfig.json の paths と同じエイリアスを Vite にも設定
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@ui": path.resolve(import.meta.dirname, "../src"),
+    };
     return config;
   },
 };

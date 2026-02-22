@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "bun test app/",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",

@@ -1,3 +1,4 @@
+import { cn } from "@ui/utils/cn";
 import type { HTMLAttributes, ReactNode } from "react";
 
 /** Card コンポーネントの Props */
@@ -24,13 +25,17 @@ const variantStyles: Record<string, string> = {
 export function Card({
   variant = "default",
   header,
-  className = "",
+  className,
   children,
   ...props
 }: CardProps) {
   return (
     <div
-      className={`overflow-hidden rounded-lg ${variantStyles[variant]} ${className}`}
+      className={cn(
+        "overflow-hidden rounded-lg",
+        variantStyles[variant],
+        className
+      )}
       {...props}
     >
       {header && (

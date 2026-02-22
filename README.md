@@ -64,6 +64,15 @@ bun run lint:fix
 
 ## テスト
 
+### ユニットテスト
+
+純粋関数のユニットテストを `bun test` で実行します。
+
+```bash
+# 全パッケージのユニットテスト実行
+bun run test
+```
+
 ### Storybook VRT（ビジュアルリグレッションテスト）
 
 コンポーネントの見た目が意図せず変わっていないかをスクリーンショット比較で検証します。
@@ -127,6 +136,7 @@ bun run web:e2e:update-snapshots:docker
 | pre-commit | lint-fix | Biome によるリント + フォーマット自動修正 |
 | pre-commit | conflict-markers | コンフリクトマーカーの残存チェック |
 | pre-commit | no-secrets | .env ファイルの誤コミット防止 |
+| pre-push | unit-test | ユニットテスト（bun test） |
 | pre-push | lint-check | Biome リント + フォーマットチェック（CI 同等） |
 | pre-push | typecheck | TypeScript 型チェック |
 | pre-push | build | Next.js ビルド |
