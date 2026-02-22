@@ -21,7 +21,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Playwright Docker イメージに unzip が未同梱のため追加（setup-bun に必要）
       - run: apt-get update && apt-get install -y unzip
@@ -51,7 +51,7 @@ jobs:
       # テスト失敗時: 差分画像を含むテスト結果をアップロード
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: vrt-report
           path: packages/ui/test-results/
@@ -60,7 +60,7 @@ jobs:
       # 常時: HTML レポートをアップロード（テスト結果の詳細確認用）
       - name: Upload HTML report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: vrt-html-report
           path: packages/ui/playwright-report/
