@@ -35,6 +35,13 @@
           }
         }
       }
+    },
+    {
+      // scripts/: Bun API を使用するためグローバル変数として許可
+      "includes": ["scripts/**"],
+      "javascript": {
+        "globals": ["Bun"]
+      }
     }
   ]
 }

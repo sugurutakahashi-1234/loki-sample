@@ -4,12 +4,10 @@
 # pre-commit: ステージされたファイルのみ対象（高速）
 # pre-push:   プロジェクト全体を対象（プッシュ前の最終チェック）
 #
-# 手動実行:
-#   bunx lefthook run pre-commit
-#   bunx lefthook run pre-push
 # ==============================================
 
 # コミット時: ステージされたファイルに対して実行
+# 手動実行: bunx lefthook run pre-commit --force
 pre-commit:
   parallel: true
   jobs:
@@ -29,12 +27,22 @@ pre-commit:
       run: git diff --cached --name-only | grep -E '\.env($|\.)' && echo ".env ファイルはコミットできません" && exit 1 || exit 0
 
 # プッシュ時: プロジェクト全体に対して実行
+# 手動実行: bunx lefthook run pre-push --force
 pre-push:
   parallel: true
   jobs:
     # Biome によるリント + フォーマットチェック（修正なし、CI と同等）
     - name: lint-check
       run: bun run lint
-    # Next.js ビルド（TypeScript 型チェック含む）
+    # TypeScript 型チェック（tsc --noEmit）
     - name: typecheck
+      run: bun run typecheck
+    # Next.js ビルド
+    - name: build
       run: bun run build
+    # Playwright バージョン整合性チェック（package.json vs Docker イメージ）
+    - name: playwright-version-check
+      run: bun run scripts/check-playwright-version.ts
+    # bun バージョン整合性チェック（packageManager vs インストール済みバージョン）
+    - name: bun-version-check
+      run: bun run scripts/check-bun-version.ts

@@ -6,7 +6,8 @@
       "WebFetch(domain:docs.ultracite.ai)",
       "Bash(bunx lefthook:*)",
       "Bash(bunx biome:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(mise latest:*)"
     ]
   }
 }

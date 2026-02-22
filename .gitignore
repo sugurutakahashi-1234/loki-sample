@@ -8,6 +8,8 @@ node_modules/
 out/
 # TypeScript コンパイル出力
 dist/
+# TypeScript インクリメンタルコンパイルキャッシュ
+*.tsbuildinfo
 # Storybook ビルド出力
 storybook-static/
 

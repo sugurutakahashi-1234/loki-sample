@@ -28,9 +28,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  update-vrt:
-    name: Update VRT Snapshots
-    if: inputs.target == 'vrt' || inputs.target == 'both'
+  update-snapshots:
+    name: Update Snapshots
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble
@@ -39,6 +38,7 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
+      # Playwright Docker イメージに unzip が未同梱のため追加（setup-bun に必要）
       - run: apt-get update && apt-get install -y unzip
 
       - uses: oven-sh/setup-bun@v2
@@ -48,94 +48,41 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # --- VRT ---
       - name: Build Storybook
+        if: inputs.target == 'vrt' || inputs.target == 'both'
         run: bun run build-storybook
         working-directory: packages/ui
 
-      # リファレンス画像を再生成
       - name: Update VRT snapshots
+        if: inputs.target == 'vrt' || inputs.target == 'both'
         run: bunx playwright test --update-snapshots
         working-directory: packages/ui
         env:
           CI: true
 
-      # 更新された画像をアーティファクトとして保存（commit ジョブで使用）
-      - name: Upload updated snapshots
-        uses: actions/upload-artifact@v6
-        with:
-          name: vrt-snapshots
-          path: packages/ui/vrt/screenshots/
-
-  update-e2e:
-    name: Update E2E Snapshots
-    if: inputs.target == 'e2e' || inputs.target == 'both'
-    runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.58.2-noble
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.ref }}
-
-      - run: apt-get update && apt-get install -y unzip
-
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
+      # --- E2E ---
       - name: Build application
+        if: inputs.target == 'e2e' || inputs.target == 'both'
         run: bun run build
         working-directory: apps/web
 
-      # リファレンス画像を再生成
       - name: Update E2E snapshots
+        if: inputs.target == 'e2e' || inputs.target == 'both'
         run: bunx playwright test --update-snapshots
         working-directory: apps/web
         env:
           CI: true
 
-      # 更新された画像をアーティファクトとして保存（commit ジョブで使用）
-      - name: Upload updated snapshots
-        uses: actions/upload-artifact@v6
-        with:
-          name: e2e-snapshots
-          path: apps/web/e2e/screenshots/
-
-  # Docker コンテナ外で PR を作成（git の safe.directory 問題を回避）
-  create-pr:
-    name: Create Pull Request
-    needs: [update-vrt, update-e2e]
-    if: always() && !cancelled() && (needs.update-vrt.result == 'success' || needs.update-e2e.result == 'success')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.ref }}
-
-      # VRT スナップショットをダウンロード
-      - name: Download VRT snapshots
-        if: needs.update-vrt.result == 'success'
-        uses: actions/download-artifact@v5
-        with:
-          name: vrt-snapshots
-          path: packages/ui/vrt/screenshots/
-
-      # E2E スナップショットをダウンロード
-      - name: Download E2E snapshots
-        if: needs.update-e2e.result == 'success'
-        uses: actions/download-artifact@v5
-        with:
-          name: e2e-snapshots
-          path: apps/web/e2e/screenshots/
+      - name: Set timestamp
+        id: timestamp
+        run: echo "value=$(date +'%Y%m%d-%H%M%S')" >> "$GITHUB_OUTPUT"
 
       # 変更があればブランチを作成して PR を作る
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
         with:
-          branch: chore/update-snapshots/${{ github.ref_name }}
+          branch: chore/update-snapshots/${{ github.ref_name }}/${{ steps.timestamp.outputs.value }}
           commit-message: "chore: CI 環境でリファレンス画像を更新"
           title: "chore: CI 環境でリファレンス画像を更新"
           body: "このPRはCI環境で再生成されたリファレンス画像を含みます。画像の差分を確認してからマージしてください。"
