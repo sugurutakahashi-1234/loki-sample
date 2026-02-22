@@ -10,7 +10,10 @@
       "Bash(mise latest:*)",
       "WebFetch(domain:argos-ci.com)",
       "WebFetch(domain:www.chromatic.com)",
-      "WebFetch(domain:pow.rs)"
+      "WebFetch(domain:pow.rs)",
+      "WebFetch(domain:allurereport.org)",
+      "Bash(bunx syncpack:*)",
+      "WebFetch(domain:syncpack.dev)"
     ]
   }
 }

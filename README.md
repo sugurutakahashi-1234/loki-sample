@@ -91,6 +91,18 @@ Next.js アプリに対するシナリオベースのテスト + ページ全体
 bun run web:e2e
 ```
 
+### Allure レポート
+
+テスト実行後に Allure レポートでリッチな結果を確認できます（ブラウザが自動で開きます）。
+
+```bash
+# E2E テストの Allure レポートを表示
+bun run web:e2e:report
+
+# VRT の Allure レポートを表示
+bun run storybook:vrt:report
+```
+
 ### スナップショット更新
 
 スナップショット（リファレンス画像）は OS ごとに分離管理されています（`darwin/` と `linux/`）。
@@ -154,3 +166,4 @@ PR 作成時に GitHub Actions が自動実行されます。
 - **E2E テスト** (`e2e.yml`): `apps/web/` または `packages/ui/` の変更時に実行
 
 失敗時はテスト結果と差分レポートがアーティファクトとしてダウンロードできます。
+Allure レポートもアーティファクトとしてアップロードされ、テスト結果の詳細分析が可能です。

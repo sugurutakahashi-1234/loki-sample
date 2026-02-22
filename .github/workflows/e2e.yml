@@ -14,6 +14,10 @@ on:
       - "apps/web/**"
       - "packages/ui/**"
 
+permissions:
+  contents: write      # peaceiris/actions-gh-pages が gh-pages に push
+  pull-requests: write # PR コメント投稿
+
 jobs:
   e2e:
     name: E2E Test
@@ -58,7 +62,7 @@ jobs:
           path: apps/web/test-results/
           retention-days: 30
 
-      # 常時: HTML レポートをアップロード（テスト結果の詳細確認用）
+      # 常時: HTML レポートをアーティファクトとしてアップロード
       - name: Upload HTML report
         if: always()
         uses: actions/upload-artifact@v6
@@ -66,3 +70,61 @@ jobs:
           name: e2e-html-report
           path: apps/web/playwright-report/
           retention-days: 30
+
+      # Allure レポートを生成
+      - name: Generate Allure report
+        if: always()
+        run: bunx allure generate allure-results --clean -o allure-report
+        working-directory: apps/web
+
+      # Allure レポートをアーティファクトとしてアップロード
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: e2e-allure-report
+          path: apps/web/allure-report/
+          retention-days: 30
+
+      # HTML レポートを GitHub Pages にデプロイ（/e2e/html-report/ 配下）
+      - name: Deploy HTML report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: apps/web/playwright-report
+          destination_dir: e2e/html-report
+          keep_files: true
+
+      # Allure レポートを GitHub Pages にデプロイ（/e2e/allure-report/ 配下）
+      - name: Deploy Allure report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: apps/web/allure-report
+          destination_dir: e2e/allure-report
+          keep_files: true
+
+      # PR にレポートへのリンクをコメント
+      - name: Comment PR with report links
+        if: always()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: e2e-report
+          message: |
+            ## E2E Test Report
+
+            | Report | Link |
+            |--------|------|
+            | Playwright HTML | https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/e2e/html-report/ |
+            | Allure | https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/e2e/allure-report/ |
+
+            <details>
+            <summary>Artifacts</summary>
+
+            GitHub Pages のデプロイに失敗した場合は、Actions の Artifacts からもダウンロードできます。
+            - `e2e-html-report` — Playwright HTML レポート
+            - `e2e-allure-report` — Allure レポート
+
+            </details>

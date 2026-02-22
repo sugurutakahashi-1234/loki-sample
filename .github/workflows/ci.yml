@@ -1,0 +1,32 @@
+# CI ワークフロー
+#
+# 全 PR で自動実行される。
+# リント・フォーマット、型チェック、ユニットテスト、ビルドを検証する。
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    name: Lint / Typecheck / Test / Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+
+      - name: Lint & Format
+        run: bun run lint
+
+      - name: Type Check
+        run: bun run typecheck
+
+      - name: Unit Test
+        run: bun run test
+
+      - name: Build
+        run: bun run build

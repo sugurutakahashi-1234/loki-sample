@@ -20,6 +20,9 @@ test-results/
 playwright-report/
 # CI 用レポート
 blob-report/
+# Allure レポート
+allure-results/
+allure-report/
 
 # 環境変数（機密情報を含むためコミットしない）
 .env

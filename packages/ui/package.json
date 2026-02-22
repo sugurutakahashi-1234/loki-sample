@@ -15,7 +15,8 @@
     "build-storybook": "storybook build",
     "typecheck": "tsc --noEmit",
     "vrt": "storybook build && bunx playwright test",
-    "vrt:update-snapshots": "storybook build && node -e \"require('fs').rmSync('vrt/screenshots/'+process.platform,{recursive:true,force:true})\" && bunx playwright test --update-snapshots"
+    "vrt:update-snapshots": "storybook build && node -e \"require('fs').rmSync('vrt/screenshots/'+process.platform,{recursive:true,force:true})\" && bunx playwright test --update-snapshots",
+    "vrt:report": "bunx allure serve allure-results"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -30,6 +31,7 @@
     "@tailwindcss/vite": "^4.2.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "allure-playwright": "^3.4.5",
     "storybook": "^10.2.10",
     "tailwindcss": "^4.2.0",
     "typescript": "^5.9.3"

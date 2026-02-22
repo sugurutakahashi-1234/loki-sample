@@ -47,6 +47,9 @@ pre-push:
     # bun バージョン整合性チェック（packageManager vs インストール済みバージョン）
     - name: bun-version-check
       run: bun run scripts/check-bun-version.ts
+    # 依存パッケージバージョン整合性チェック（モノレポ内で同一パッケージのバージョンが揃っているか）
+    - name: dependency-version-consistency-check
+      run: bun syncpack lint
     # ユニットテスト（bun test）
     - name: unit-test
       run: bun run test
