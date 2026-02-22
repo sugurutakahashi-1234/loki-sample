@@ -14,8 +14,8 @@
     "vrt:update": "bun run --filter @loki-sample/ui vrt:update",
     "e2e": "bun run --filter web e2e",
     "e2e:update": "bun run --filter web e2e:update",
-    "check": "ultracite check",
-    "fix": "ultracite fix",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "prepare": "lefthook install",
     "outdated": "bun outdated",
     "update-deps": "bun update --latest && bun update --latest --filter '*'"

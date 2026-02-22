@@ -56,10 +56,10 @@ bun run dev
 
 ```bash
 # リント + フォーマットチェック（CI 用）
-bun run check
+bun run lint
 
 # リント + フォーマット自動修正（ローカル開発用）
-bun run fix
+bun run lint:fix
 ```
 
 ## テスト
