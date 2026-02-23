@@ -1,0 +1,48 @@
+# Storybook デプロイワークフロー
+#
+# main ブランチへのプッシュ時に Storybook をビルドし、
+# Cloudflare Pages にデプロイする。
+#
+# 前提条件:
+#   - Cloudflare Pages プロジェクト「storybook」が作成済み
+#   - GitHub Secrets に以下が設定済み:
+#     - CLOUDFLARE_API_TOKEN: Cloudflare API トークン（Pages の編集権限）
+#     - CLOUDFLARE_ACCOUNT_ID: Cloudflare アカウント ID
+#
+# アクセス制御:
+#   Cloudflare Access で GitHub 認証を設定し、
+#   許可されたユーザーのみ閲覧可能にする（Cloudflare ダッシュボードで設定）。
+name: Deploy Storybook
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/ui/**"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build Storybook
+        run: bun run build-storybook
+        working-directory: packages/ui
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy packages/ui/storybook-static --project-name=storybook
