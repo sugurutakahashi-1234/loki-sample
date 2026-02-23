@@ -35,7 +35,8 @@
       "Bash(tail:*)",
       "mcp__plugin_web-dev-plugin_chrome-devtools__press_key",
       "WebFetch(domain:heroicons.com)",
-      "WebFetch(domain:lucide.dev)"
+      "WebFetch(domain:lucide.dev)",
+      "WebFetch(domain:oxc.rs)"
     ]
   }
 }

@@ -16,7 +16,7 @@ const meta = {
     (Story) => (
       <div className="flex items-center gap-4 p-4">
         <Story />
-        <span className="text-gray-500 text-sm dark:text-gray-400">
+        <span className="text-on-surface-muted text-sm">
           クリックでテーマを切り替え
         </span>
       </div>

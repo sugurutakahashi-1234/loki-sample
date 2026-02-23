@@ -54,7 +54,7 @@ export function ThemeToggle() {
   return (
     <button
       aria-label={`テーマ: ${label}（クリックで切り替え）`}
-      className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+      className="rounded-lg p-2 text-interactive-muted transition-colors hover:bg-interactive-hover"
       onClick={toggle}
       type="button"
     >

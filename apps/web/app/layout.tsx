@@ -39,7 +39,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-gray-50 text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
+      <body className="min-h-screen bg-background text-on-background antialiased">
         <header className="flex justify-end px-4 py-3">
           <ThemeToggle />
         </header>
