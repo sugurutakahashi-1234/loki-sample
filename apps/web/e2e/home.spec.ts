@@ -5,7 +5,7 @@
  * コンテンツの表示確認とスクリーンショット比較を行う。
  */
 import { expect, test } from "@playwright/test";
-import { takeThemeScreenshots } from "./reg-screenshot";
+import { takeScreenshot } from "./reg-screenshot";
 
 test.describe("Home Page", () => {
   /** ページが正しく表示され、メインの見出しが存在することを確認 */
@@ -21,8 +21,7 @@ test.describe("Home Page", () => {
   test("ホームページのスクリーンショット", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    // reg-cli 用のスクリーンショットを .reg/actual/ へ保存（ライト・ダーク両方）
-    await takeThemeScreenshots(page, { fullPage: true });
+    await takeScreenshot(page, { fullPage: true });
   });
 
   /** Button / Card / Badge / TextField の全セクション見出しが表示されていることを確認 */

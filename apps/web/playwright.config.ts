@@ -4,6 +4,9 @@
  * Next.js アプリケーションに対するエンドツーエンドテストの設定。
  * ページ遷移、レスポンシブ表示、スクリーンショット比較などを検証する。
  *
+ * light / dark の2プロジェクトで同じテストを実行し、
+ * 各テーマのスクリーンショットを撮影する。
+ *
  * 実行: bun run web:e2e:playwright
  */
 import { defineConfig } from "@playwright/test";
@@ -48,13 +51,17 @@ export default defineConfig({
     // Next.js dev サーバーの URL
     baseURL: "http://localhost:3000",
 
-    // テーマをライトモードに固定（layout.tsx の FOUC 防止スクリプトが
-    // prefers-color-scheme を参照するため、明示的に設定してテスト間の一貫性を保証）
-    colorScheme: "light",
-
     // テスト失敗時の自動スクリーンショットは無効（E2E テスト内で明示的に撮影するため不要）
     screenshot: "off",
   },
+
+  // ライト・ダーク両テーマでテストを実行
+  // layout.tsx の FOUC 防止スクリプトが prefers-color-scheme を参照するため、
+  // colorScheme の設定だけで初回描画からテーマが正しく適用される
+  projects: [
+    { name: "light", use: { colorScheme: "light" } },
+    { name: "dark", use: { colorScheme: "dark" } },
+  ],
 
   // テスト実行前に Next.js dev サーバーを自動起動する設定
   webServer: {
