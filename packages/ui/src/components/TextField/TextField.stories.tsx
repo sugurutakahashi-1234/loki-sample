@@ -28,6 +28,14 @@ export const Default: Story = {
   args: {
     placeholder: "Enter text...",
   },
+};
+
+/** テキスト入力テスト（VRT 対象外: play 関数で DOM が変化するためスクリーンショットが不安定） */
+export const Typing: Story = {
+  args: {
+    placeholder: "Enter text...",
+  },
+  tags: ["skip-vrt"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByRole("textbox");
@@ -35,10 +43,6 @@ export const Default: Story = {
     // テキストを入力し、値が反映されることを検証
     await userEvent.type(input, "Hello, World!");
     await expect(input).toHaveValue("Hello, World!");
-
-    // VRT スクリーンショットの安定化: 入力をクリアしてフォーカスを外す
-    await userEvent.clear(input);
-    input.blur();
   },
 };
 

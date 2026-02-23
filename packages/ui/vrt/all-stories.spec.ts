@@ -30,8 +30,9 @@ const indexJson = JSON.parse(
 );
 
 // type === "story" のエントリのみ抽出（docs エントリはスクリーンショット不要）
+// "skip-vrt" タグ付きストーリーは VRT 対象外（play 関数で DOM が変化しスクリーンショットが不安定なため）
 const stories = Object.values(indexJson.entries).filter(
-  (entry: any) => entry.type === "story"
+  (entry: any) => entry.type === "story" && !entry.tags?.includes("skip-vrt")
 );
 
 // 各ストーリーに対してテストケースを動的生成
