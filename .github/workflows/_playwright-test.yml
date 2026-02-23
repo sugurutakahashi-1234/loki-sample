@@ -50,6 +50,7 @@ jobs:
   test:
     name: ${{ inputs.report-title }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       vrt-table: ${{ steps.reg-result.outputs.vrt-table }}
     steps:
@@ -240,6 +241,7 @@ jobs:
     needs: test
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     # gh-pages ブランチへの push が競合しないようにキューイング
     # （VRT と E2E が同時実行されても deploy は順番に処理される）
     concurrency:
