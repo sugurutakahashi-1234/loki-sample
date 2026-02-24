@@ -25,7 +25,7 @@
     "exactOptionalPropertyTypes": true,
 
     // Style Options
-    "noImplicitReturns": true,
+    // "noImplicitReturns": true, // oxlint の no-useless-return / no-useless-undefined と競合するため無効
     "noImplicitOverride": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
