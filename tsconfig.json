@@ -1,66 +1,28 @@
 {
-  // モノレポ全体で共有するベース TypeScript 設定
+  // モノレポ全体で共有するベース TypeScript 設定（tsgo --init デフォルト準拠）
   // 各ワークスペース（apps/web, packages/ui）はこのファイルを extends して使用する
   "compilerOptions": {
-    // === Environment Settings ===
+    // Environment Settings
+    "module": "nodenext",
+    "target": "esnext",
+    "types": [],
 
-    // 最新の ECMAScript 仕様をターゲットに設定
-    "target": "ESNext",
-
-    // 利用可能な型定義ライブラリ（DOM API + ESNext 標準ライブラリ）
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-
-    // ESNext モジュールシステムを使用（dynamic import, import.meta 等をサポート）
-    "module": "ESNext",
-
-    // バンドラー向けのモジュール解決戦略（Vite, Next.js 等のバンドラーとの互換性）
-    "moduleResolution": "bundler",
-
-    // すべてのファイルをモジュールとして扱う（スクリプトファイルの誤検出を防止）
-    "moduleDetection": "force",
-
-    // JSX を react-jsx トランスフォームで変換（React 17+ の新しい JSX 変換、import React 不要）
-    "jsx": "react-jsx",
-
-    // === Strict Typechecking ===
-
-    // 厳格な型チェックを有効化（strictNullChecks, noImplicitAny 等すべて含む）
-    "strict": true,
-
-    // インデックスシグネチャに | undefined を付与（配列やオブジェクトの安全なアクセス）
-    "noUncheckedIndexedAccess": true,
-
-    // オプショナルプロパティの undefined 代入を禁止（T? と T | undefined を区別）
-    "exactOptionalPropertyTypes": true,
-
-    // side-effect import（import "./foo"）に型宣言を要求（CSS 等の import 漏れを検出）
-    "noUncheckedSideEffectImports": true,
-
-    // === Module System ===
-
-    // import/export 文をそのまま出力（import type の明示を強制、isolatedModules + esModuleInterop を置き換え）
-    "verbatimModuleSyntax": true,
-
-    // === Output ===
-
-    // 型定義ファイル（.d.ts）を出力
+    // Other Outputs
+    "sourceMap": true,
     "declaration": true,
-
-    // デバッグ用の declaration map を出力（.d.ts から元ソースへのマッピング）
     "declarationMap": true,
 
-    // ソースマップを出力（デバッグ時に元の TypeScript コードを参照可能にする）
-    "sourceMap": true,
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
 
-    // === Interop ===
-
-    // 依存パッケージの型定義チェックをスキップ（ビルド速度向上）
-    "skipLibCheck": true,
-
-    // ファイル名の大文字小文字を厳密にチェック（macOS/Windows での不整合を防止）
-    "forceConsistentCasingInFileNames": true
-  },
-
-  // node_modules はコンパイル対象から除外
-  "exclude": ["node_modules"]
+    // Recommended Options
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  }
 }

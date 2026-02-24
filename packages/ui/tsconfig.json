@@ -1,21 +1,24 @@
 {
-  // ルートの tsconfig.json を継承
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    // バンドラー環境向けにモジュール設定を上書き（Vite / Storybook）
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    // ブラウザ向け型定義ライブラリ
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+
+    // 自動取り込みする型定義（ルートの types: [] を上書き）
+    "types": ["bun"],
+
     // ビルド出力先ディレクトリ
     "outDir": "./dist",
-    // パスエイリアス: 深い相対パスを避ける
+
+    // パスエイリアス
     "paths": {
       "@ui/*": ["./src/*"]
     }
   },
-  // src/ 配下のソースファイルのみをコンパイル対象とする
   "include": ["src/**/*"],
-  // コンパイル対象から除外するディレクトリ
-  "exclude": [
-    "node_modules",
-    "dist", // ビルド出力
-    "vrt", // VRT テストファイル
-    "storybook-static" // Storybook のビルド出力
-  ]
+  "exclude": ["node_modules", "dist", "vrt", "storybook-static"]
 }
