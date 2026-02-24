@@ -1,14 +1,14 @@
-import { ThemeToggle } from "@storybook-vrt-sample/ui";
-
-import "./globals.css";
 /**
  * ルートレイアウト
  *
  * Next.js App Router の最上位レイアウト。
  * 全ページに共通する HTML 構造、メタデータ、グローバルスタイルを定義する。
  */
+
+import { ThemeToggle } from "@storybook-vrt-sample/ui";
 import type { Metadata } from "next";
 
+import "./globals.css";
 import { formatPageTitle } from "./utils/format";
 
 /** サイト全体のメタデータ（<title> や <meta> タグに反映される） */
