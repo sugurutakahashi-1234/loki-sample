@@ -5,6 +5,7 @@
  * 全ページに共通する HTML 構造、メタデータ、グローバルスタイルを定義する。
  */
 import type { Metadata } from "next";
+
 import "./globals.css";
 import { ThemeToggle } from "@storybook-vrt-sample/ui";
 import { formatPageTitle } from "./utils/format";
