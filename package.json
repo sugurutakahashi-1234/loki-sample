@@ -16,6 +16,8 @@
     "knip": "knip",
     "lint": "oxlint . && oxfmt --check .",
     "lint:fix": "oxlint --fix . && oxfmt --write .",
+    "check": "ultracite check",
+    "fix": "ultracite fix",
     "prepare": "lefthook install",
     "outdated": "bun outdated",
     "update-deps": "bun update --latest && bun update --latest --filter '*'",
