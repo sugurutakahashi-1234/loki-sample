@@ -9,12 +9,18 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+
 jobs:
   ci:
     name: Lint / Typecheck / Knip / Test / Build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - uses: catchpoint/workflow-telemetry-action@v2
       - uses: Kesin11/actions-timeline@v3
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2

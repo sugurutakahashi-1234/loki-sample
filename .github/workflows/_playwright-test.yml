@@ -58,6 +58,8 @@ jobs:
       # セットアップ
       # ────────────────────────────────────────
 
+      - uses: catchpoint/workflow-telemetry-action@v2
+
       - uses: actions/checkout@v6
         with:
           # ベースライン生成で base branch を参照するため全履歴が必要
