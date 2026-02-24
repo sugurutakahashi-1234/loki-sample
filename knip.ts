@@ -4,7 +4,12 @@ const config: KnipConfig = {
   // *:baseline:local スクリプトで git archive | tar -x として使用するシステムコマンド
   ignoreBinaries: ["tar"],
   workspaces: {
-    ".": {},
+    ".": {
+      ignoreDependencies: [
+        // bunx ultracite init で設定再生成に使用（CLI ツールのため knip では検出不可）
+        "ultracite",
+      ],
+    },
     "apps/web": {
       // bun test のテストファイルをエントリーポイントとして認識させる
       entry: ["app/**/*.test.ts!"],
