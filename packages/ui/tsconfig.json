@@ -1,22 +1,31 @@
 {
-  // ルートの tsconfig.json を継承
+  // ==============================
+  // packages/ui 用 TypeScript 設定
+  // ==============================
+  // - ルートの tsconfig.json を継承し、バンドラー固有の設定のみ上書きする
+  // - ルートの strict 系オプションを緩める変更は禁止（型安全性が低下する）
+  // - include は src/ のみ。設定ファイル（playwright.config.ts 等）は対象外だが、
+  //   VS Code の Language Server で型チェックされる
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    // バンドラー環境向けにモジュール設定を上書き（Vite / Storybook）
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    // ブラウザ向け型定義ライブラリ
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+
+    // 自動取り込みする型定義（ルートの types: [] を上書き）
+    "types": ["bun"],
+
     // ビルド出力先ディレクトリ
     "outDir": "./dist",
-    "strictNullChecks": true,
-    // パスエイリアス: 深い相対パスを避ける
+
+    // パスエイリアス
     "paths": {
       "@ui/*": ["./src/*"]
     }
   },
-  // src/ 配下のソースファイルのみをコンパイル対象とする
   "include": ["src/**/*"],
-  // コンパイル対象から除外するディレクトリ
-  "exclude": [
-    "node_modules",
-    "dist", // ビルド出力
-    "vrt", // VRT テストファイル
-    "storybook-static" // Storybook のビルド出力
-  ]
+  "exclude": ["node_modules", "dist", "vrt", "storybook-static"]
 }

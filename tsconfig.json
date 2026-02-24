@@ -1,50 +1,56 @@
 {
-  // モノレポ全体で共有するベース TypeScript 設定
-  // 各ワークスペース（apps/web, packages/ui）はこのファイルを extends して使用する
+  // ==============================
+  // モノレポ共通ベース TypeScript 設定（tsgo --init デフォルト準拠）
+  // ==============================
+  // - このファイルは tsgo --init の出力をベースにしている
+  // - strict 系オプションを緩める変更は禁止（型安全性が低下する）
+  // - Style Options は oxlint / oxfmt に委譲しているため有効化しない
+  // - 各ワークスペース（apps/web, packages/ui）は extends で継承し、
+  //   バンドラー固有の設定のみ上書きする
+  //
+  // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
-    // ECMAScript 2022 をターゲットに設定（top-level await, Object.hasOwn 等が利用可能）
-    "target": "ES2022",
+    // File Layout
+    // "rootDir": "./src",
+    // "outDir": "./dist",
 
-    // 利用可能な型定義ライブラリ（DOM API + ES2022 標準ライブラリ）
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    // Environment Settings
+    // See also https://aka.ms/tsconfig/module
+    "module": "nodenext",
+    "target": "esnext",
+    "types": [],
+    // For nodejs:
+    // "lib": ["esnext"],
+    // "types": ["node"],
+    // and npm install -D @types/node
 
-    // ESNext モジュールシステムを使用（dynamic import, import.meta 等をサポート）
-    "module": "ESNext",
-
-    // バンドラー向けのモジュール解決戦略（Vite, Next.js 等のバンドラーとの互換性）
-    "moduleResolution": "bundler",
-
-    // JSON ファイルの import を許可
-    "resolveJsonModule": true,
-
-    // 各ファイルを独立したモジュールとして扱う（バンドラーとの互換性に必要）
-    "isolatedModules": true,
-
-    // CommonJS モジュールの default import を許可
-    "esModuleInterop": true,
-
-    // JSX を react-jsx トランスフォームで変換（React 17+ の新しい JSX 変換、import React 不要）
-    "jsx": "react-jsx",
-
-    // 厳格な型チェックを有効化（strictNullChecks, noImplicitAny 等すべて含む）
-    "strict": true,
-
-    // 依存パッケージの型定義チェックをスキップ（ビルド速度向上）
-    "skipLibCheck": true,
-
-    // ファイル名の大文字小文字を厳密にチェック（macOS/Windows での不整合を防止）
-    "forceConsistentCasingInFileNames": true,
-
-    // 型定義ファイル（.d.ts）を出力
+    // Other Outputs
+    "sourceMap": true,
     "declaration": true,
-
-    // デバッグ用の declaration map を出力（.d.ts から元ソースへのマッピング）
     "declarationMap": true,
 
-    // ソースマップを出力（デバッグ時に元の TypeScript コードを参照可能にする）
-    "sourceMap": true
-  },
+    // Stricter Typechecking Options
+    // ※ 以下のオプションを false にしたり削除しないこと（型安全性の低下に直結する）
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
 
-  // node_modules はコンパイル対象から除外
-  "exclude": ["node_modules"]
+    // Style Options（oxlint / oxfmt に委譲するため有効化しない）
+    // ※ 有効化すると oxlint ルール（no-useless-return 等）と競合するため、コメントアウトのまま維持すること
+    // "noImplicitReturns": true,
+    // "noImplicitOverride": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noFallthroughCasesInSwitch": true,
+    // "noPropertyAccessFromIndexSignature": true,
+
+    // Recommended Options
+    // ※ 以下のオプションを false にしたり削除しないこと
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  }
 }
