@@ -49,7 +49,8 @@ Thumbs.db
 .oxc_cache/
 
 # IDE 設定
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo
