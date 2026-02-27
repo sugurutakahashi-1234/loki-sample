@@ -4,17 +4,17 @@ Storybook コンポーネントのビジュアルリグレッションテスト�
 
 ## 技術スタック
 
-| 技術               | 用途                                                               |
-| ------------------ | ------------------------------------------------------------------ |
-| Next.js 16         | アプリケーション                                                   |
-| Storybook 10       | コンポーネントカタログ                                             |
-| storybook-addon-vis | VRT スクリーンショット撮影（vitest browser mode）                 |
-| Playwright         | E2E テスト                                                         |
-| reg-cli            | VRT / E2E 差分 HTML レポート（スライド / オーバーレイ / 2up / ブレンド） |
-| Tailwind CSS v4    | スタイリング                                                       |
-| Oxlint + Oxfmt     | リンター + フォーマッター                                          |
-| bun                | パッケージマネージャー + モノレポ管理                              |
-| TypeScript         | 型安全性（tsgo による高速型チェック）                              |
+| 技術                | 用途                                                                     |
+| ------------------- | ------------------------------------------------------------------------ |
+| Next.js 16          | アプリケーション                                                         |
+| Storybook 10        | コンポーネントカタログ                                                   |
+| storybook-addon-vis | VRT スクリーンショット撮影（vitest browser mode）                        |
+| Playwright          | E2E テスト                                                               |
+| reg-cli             | VRT / E2E 差分 HTML レポート（スライド / オーバーレイ / 2up / ブレンド） |
+| Tailwind CSS v4     | スタイリング                                                             |
+| Oxlint + Oxfmt      | リンター + フォーマッター                                                |
+| bun                 | パッケージマネージャー + モノレポ管理                                    |
+| TypeScript          | 型安全性（tsgo による高速型チェック）                                    |
 
 ## プロジェクト構成
 
@@ -114,16 +114,16 @@ VRT の画像比較は reg-cli（REG Suite）が担っており、テストラ�
 
 **移行で得られたメリット:**
 
-| 項目 | Playwright | storybook-addon-vis |
-| --- | --- | --- |
-| 事前ビルド | `storybook build` 必須 | 不要 |
-| HTTP サーバー | `http-server` 必須 | 不要 |
-| スクリーンショット範囲 | 要素セレクタを手動指定 (`#storybook-root`) | body の `display: inline-block` でコンポーネントサイズに自動フィット |
-| テーマ別撮影 | ストーリー URL のクエリパラメータで手動制御 | `vis.setup({ auto: { light, dark } })` で宣言的に設定 |
-| ストーリー列挙 | `index.json` をパースして動的生成 | `@storybook/addon-vitest` が自動列挙 |
-| VRT 除外制御 | 独自タグ `skip-vrt` | Storybook 標準の `!snapshot` タグ |
-| 依存パッケージ | `@playwright/test` + `allure-playwright` + `http-server` | `storybook-addon-vis` のみ（追加） |
-| 実行速度 (24ストーリー) | ~10s（ビルド含む） | ~3s（約70%短縮） |
+| 項目                    | Playwright                                               | storybook-addon-vis                                                  |
+| ----------------------- | -------------------------------------------------------- | -------------------------------------------------------------------- |
+| 事前ビルド              | `storybook build` 必須                                   | 不要                                                                 |
+| HTTP サーバー           | `http-server` 必須                                       | 不要                                                                 |
+| スクリーンショット範囲  | 要素セレクタを手動指定 (`#storybook-root`)               | body の `display: inline-block` でコンポーネントサイズに自動フィット |
+| テーマ別撮影            | ストーリー URL のクエリパラメータで手動制御              | `vis.setup({ auto: { light, dark } })` で宣言的に設定                |
+| ストーリー列挙          | `index.json` をパースして動的生成                        | `@storybook/addon-vitest` が自動列挙                                 |
+| VRT 除外制御            | 独自タグ `skip-vrt`                                      | Storybook 標準の `!snapshot` タグ                                    |
+| 依存パッケージ          | `@playwright/test` + `allure-playwright` + `http-server` | `storybook-addon-vis` のみ（追加）                                   |
+| 実行速度 (24ストーリー) | ~10s（ビルド含む）                                       | ~3s（約70%短縮）                                                     |
 
 **検討したが見送ったツール:**
 
@@ -220,11 +220,11 @@ VRT・E2E ともにスクリーンショット撮影が目的であり、ビジ�
 
 ### テスト構成の棲み分け
 
-| レイヤー            | 役割                                                                 | ツール               | CI での判定                 |
-| ------------------- | -------------------------------------------------------------------- | -------------------- | --------------------------- |
-| storybook-addon-vis | コンポーネントのスクリーンショット撮影（vitest browser mode）        | storybook-addon-vis  | pass/fail（機能テストのみ） |
-| Playwright E2E      | ページ遷移・レスポンシブ表示のスクリーンショット撮影 + 機能テスト    | Playwright           | pass/fail（機能テストのみ） |
-| reg-cli             | リッチな差分レポート生成（スライド / オーバーレイ / 2up / ブレンド） | reg-cli              | レポートのみ（fail しない） |
+| レイヤー            | 役割                                                                 | ツール              | CI での判定                 |
+| ------------------- | -------------------------------------------------------------------- | ------------------- | --------------------------- |
+| storybook-addon-vis | コンポーネントのスクリーンショット撮影（vitest browser mode）        | storybook-addon-vis | pass/fail（機能テストのみ） |
+| Playwright E2E      | ページ遷移・レスポンシブ表示のスクリーンショット撮影 + 機能テスト    | Playwright          | pass/fail（機能テストのみ） |
+| reg-cli             | リッチな差分レポート生成（スライド / オーバーレイ / 2up / ブレンド） | reg-cli             | レポートのみ（fail しない） |
 
 - ベースライン画像はリポジトリにコミットせず、ベースブランチから動的生成する
 - reg-cli はテスト実行時に `.reg/actual/` に保存されたスクリーンショットと、ベースブランチから生成した `.reg/expected/` を比較してレポートを生成する
