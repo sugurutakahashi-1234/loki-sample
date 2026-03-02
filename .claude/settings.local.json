@@ -48,7 +48,9 @@
       "WebFetch(domain:registry.npmjs.org)",
       "Bash(pip3 install:*)",
       "Bash(cp:*)",
-      "Bash(LEFTHOOK_VERBOSE=1 bunx lefthook:*)"
+      "Bash(LEFTHOOK_VERBOSE=1 bunx lefthook:*)",
+      "Bash(/tmp/e2e-timing-analysis.txt:*)",
+      "WebFetch(domain:evilmartians.com)"
     ]
   }
 }

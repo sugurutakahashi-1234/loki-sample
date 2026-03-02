@@ -19,6 +19,7 @@ pre-commit:
     # Oxlint によるリント自動修正
     # oxlint は JS/TS のみ対応のため、JSON/CSS は対象外
     - name: oxlint-fix
+      timeout: 20s
       run: bunx oxlint --fix {staged_files}
       glob: "**/*.{js,jsx,ts,tsx}"
       exclude: "**/next-env.d.ts"
@@ -26,17 +27,20 @@ pre-commit:
     # Oxfmt によるフォーマット自動修正
     # oxfmt は JSON/JSONC/CSS/MD/YML もフォーマット可能なため、oxlint より対象を広げている
     - name: oxfmt-fix
+      timeout: 20s
       run: bunx oxfmt --write {staged_files}
       glob: "**/*.{js,jsx,ts,tsx,json,jsonc,css,md,yml}"
       exclude: "**/next-env.d.ts"
       stage_fixed: true
     # コンフリクトマーカー（<<<<<<< 等）の残存チェック
     - name: conflict-markers
+      timeout: 20s
       run: grep -n '<<<<<<< \|======= \|>>>>>>> ' {staged_files} < /dev/null && echo "コンフリクトマーカーが残っています" && exit 1 || exit 0
       glob:
         - "**/*.{js,jsx,ts,tsx,json,jsonc,css,md,yml,yaml}"
     # .env ファイルの誤コミット防止
     - name: no-secrets
+      timeout: 20s
       run: git diff --cached --name-only | grep -E '\.env($|\.)' && echo ".env ファイルはコミットできません" && exit 1 || exit 0
 
 # プッシュ時: プロジェクト全体に対して実行
@@ -46,32 +50,43 @@ pre-push:
   jobs:
     # Oxlint + Oxfmt によるリント + フォーマットチェック（修正なし、CI と同等）
     - name: lint-check
+      timeout: 20s
       run: bun run lint || (echo "" && echo "❌ リント/フォーマットエラーがあります" && echo "👉 bun run fix で自動修正" && exit 1)
     # TypeScript 型チェック（tsgo --noEmit）
     - name: typecheck
+      timeout: 20s
       run: bun run typecheck || (echo "" && echo "❌ 型エラーがあります" && echo "👉 bun run typecheck で詳細を確認" && exit 1)
     # Next.js ビルド
     - name: build
+      timeout: 20s
       run: bun run build || (echo "" && echo "❌ ビルドに失敗しました" && echo "👉 bun run build で詳細を確認" && exit 1)
     # bun バージョン整合性チェック（packageManager vs インストール済みバージョン）
     - name: bun-version-check
+      timeout: 20s
       run: bun run scripts/check-bun-version.ts || (echo "" && echo "❌ bun のバージョンが不一致です" && echo "👉 package.json の packageManager を確認" && exit 1)
     # 依存パッケージバージョン整合性チェック（モノレポ内で同一パッケージのバージョンが揃っているか）
     - name: syncpack
+      timeout: 20s
       run: bun syncpack lint || (echo "" && echo "❌ パッケージバージョンが不整合です" && echo "👉 bun syncpack fix で自動修正" && exit 1)
     # 未使用ファイル・依存関係チェック
     - name: knip
+      timeout: 20s
       run: bun run knip || (echo "" && echo "❌ 未使用のファイル・依存関係があります" && echo "👉 bun run knip で詳細を確認" && exit 1)
     # ユニットテスト（bun test）
     - name: unit-test
+      timeout: 20s
       run: bun run test || (echo "" && echo "❌ ユニットテストが失敗しました" && echo "👉 bun run test で詳細を確認" && exit 1)
     # Storybook コンポーネントテスト（Vitest: Interactions + a11y）
+    # storybook-test と storybook-vrt-snapshot は異なるポート（63315 / 63316）で並列実行可能
     - name: storybook-test
+      timeout: 20s
       run: bun run --filter @storybook-vrt-sample/ui test:storybook || (echo "" && echo "❌ Storybook テストが失敗しました" && echo "👉 bun run --filter @storybook-vrt-sample/ui test:storybook で詳細を確認" && exit 1)
     # Storybook VRT スクリーンショット撮影 + 差分チェック（コミットし忘れ防止）
     - name: storybook-vrt-snapshot
+      timeout: 20s
       run: bun run storybook:vrt:snapshot && git diff --quiet packages/ui/vrt/screenshots/ && ! git ls-files --others --exclude-standard packages/ui/vrt/screenshots/ | grep -q . || (echo "" && echo "❌ VRT スクリーンショットに差分があります" && echo "👉 bun run storybook:vrt:snapshot && git add packages/ui/vrt/screenshots/ && git commit" && exit 1)
     # E2E テスト（Playwright / Next.js dev サーバーを自動起動して実行）
     # スクリーンショットに差分があれば push を失敗させる（コミットし忘れ防止）
     - name: e2e-test
+      timeout: 20s
       run: bun run e2e && git diff --quiet apps/web/e2e/screenshots/ && ! git ls-files --others --exclude-standard apps/web/e2e/screenshots/ | grep -q . || (echo "" && echo "❌ E2E スクリーンショットに差分があります" && echo "👉 bun run e2e && git add apps/web/e2e/screenshots/ && git commit" && exit 1)
