@@ -32,6 +32,22 @@ beforeAll(annotations.beforeAll);
  * display: inline-block + height: auto で内容に合わせて縮小する。
  */
 const fitBodyToContent = () => {
+  // CSS アニメーション・トランジションを無効化（VRT の決定性を保証）
+  // Playwright は screenshots API で animations: "disabled" をサポートしているが、
+  // vitest-plugin-vis (storybook-addon-vis) がこのオプションを公開していないため、
+  // CSS スタイル注入で対応する。
+  if (!document.querySelector("#vrt-disable-animations")) {
+    const style = document.createElement("style");
+    style.id = "vrt-disable-animations";
+    style.textContent = `*, *::before, *::after {
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+    }`;
+    document.head.append(style);
+  }
+
   const { style } = document.body;
   style.display = "inline-block";
   style.minHeight = "auto";
