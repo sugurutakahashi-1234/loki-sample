@@ -14,7 +14,7 @@
     "storybook:test": "bun run --filter @storybook-vrt-sample/ui test:storybook",
     "storybook:vrt:snapshot": "bun run --filter @storybook-vrt-sample/ui vrt:snapshot",
     "e2e": "bun run --filter web e2e:playwright",
-    "knip": "knip",
+    "knip": "knip --config knip.config.mts",
     "lint": "oxlint . && oxfmt --check .",
     "lint:fix": "oxlint --fix . && oxfmt --write .",
     "check": "ultracite check",
