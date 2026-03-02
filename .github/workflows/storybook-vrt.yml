@@ -8,9 +8,10 @@ name: Storybook VRT
 on:
   pull_request:
     branches: [main]
-    # packages/ui/ の変更時のみ実行（apps/web/ のみの変更では不要）
+    # packages/ui/ または bun.lock の変更時のみ実行
     paths:
       - "packages/ui/**"
+      - "bun.lock"
   workflow_dispatch:
 
 permissions:

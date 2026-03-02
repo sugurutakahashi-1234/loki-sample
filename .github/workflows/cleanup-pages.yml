@@ -1,13 +1,16 @@
 # GitHub Pages クリーンアップワークフロー
 #
 # PR がクローズ（マージ含む）されたときに gh-pages のサイズをチェックし、
-# 800MB を超えている場合は古い PR ディレクトリから順に削除して 800MB 以下にする。
+# 800MB を超えている場合は古いディレクトリから順に削除して 800MB 以下にする。
+# 削除順: 不明なディレクトリ → manual/（手動実行）→ pr/（PR レポート）の優先度で古い順に削除。
+# latest/ は共有の Allure 履歴を保持するため削除しない。
 # レポートは可能な限り残しておき、容量が逼迫した場合にだけクリーンアップする。
 name: Cleanup GitHub Pages
 
 on:
   pull_request:
     types: [closed]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -26,49 +29,49 @@ jobs:
           SIZE_MB=$(du -sm . 2>/dev/null | cut -f1)
           echo "GitHub Pages total size: ${SIZE_MB}MB"
 
-          if [ ! -d "pr" ]; then
-            echo "No PR directories exist, nothing to clean up"
-            exit 0
-          fi
-
           # 800MB 未満なら残しておく
           if [ "$SIZE_MB" -lt 800 ]; then
-            echo "Total size is under 800MB, keeping all PR reports"
+            echo "Total size is under 800MB, keeping all reports"
             exit 0
           fi
 
-          echo "Total size exceeds 800MB, starting cleanup from oldest PR directories..."
+          echo "Total size exceeds 800MB, starting cleanup..."
 
-          # PR ディレクトリを番号の小さい（古い）順にソートして取得
-          PR_DIRS=$(ls -1d pr/[0-9]* 2>/dev/null | sort -t/ -k2 -n)
-
-          if [ -z "$PR_DIRS" ]; then
-            echo "No PR directories found"
-            exit 0
-          fi
+          # 削除対象ディレクトリを優先度順に収集
+          # 1. 不明なディレクトリ（pr/, manual/, latest/, .git 以外）
+          # 2. manual/（手動実行、一時的なレポート）
+          # 3. pr/（PR レポート、最も保持したい）
+          TARGETS=""
+          for DIR in $(ls -1d */ 2>/dev/null); do
+            DIR="${DIR%/}"
+            case "$DIR" in
+              pr|manual|latest|.git) ;;
+              *) TARGETS="$TARGETS $DIR" ;;
+            esac
+          done
+          TARGETS="$TARGETS $(ls -1d manual/[0-9]* 2>/dev/null | sort -t/ -k2 -n)"
+          TARGETS="$TARGETS $(ls -1d pr/[0-9]* 2>/dev/null | sort -t/ -k2 -n)"
 
           DELETED=0
-          for DIR in $PR_DIRS; do
-            # 削除途中でサイズを再計算し、800MB 以下なら終了
+          for DIR in $TARGETS; do
             SIZE_MB=$(du -sm . 2>/dev/null | cut -f1)
             if [ "$SIZE_MB" -lt 800 ]; then
               echo "Size is now ${SIZE_MB}MB (< 800MB), stopping cleanup"
               break
             fi
 
-            PR_NUM=$(basename "$DIR")
             DIR_SIZE_MB=$(du -sm "$DIR" 2>/dev/null | cut -f1)
-            echo "Removing pr/${PR_NUM} (${DIR_SIZE_MB}MB) - total: ${SIZE_MB}MB"
+            echo "Removing ${DIR} (${DIR_SIZE_MB}MB) - total: ${SIZE_MB}MB"
             git rm -rf "$DIR"
             DELETED=$((DELETED + 1))
           done
 
           if [ "$DELETED" -eq 0 ]; then
-            echo "No PR directories were removed"
+            echo "No directories were removed"
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: cleanup ${DELETED} old PR directories from GitHub Pages (was ${SIZE_MB}MB > 800MB)"
+          git commit -m "chore: cleanup ${DELETED} old report directories from GitHub Pages (was ${SIZE_MB}MB > 800MB)"
           git push

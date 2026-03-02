@@ -8,11 +8,12 @@ name: E2E Tests
 on:
   pull_request:
     branches: [main]
-    # apps/web/ と packages/ui/ の変更時に実行
+    # apps/web/、packages/ui/、または bun.lock の変更時に実行
     # UI コンポーネントの変更が Web アプリに影響する可能性があるため両方を監視
     paths:
       - "apps/web/**"
       - "packages/ui/**"
+      - "bun.lock"
   workflow_dispatch:
 
 permissions:
@@ -126,16 +127,11 @@ jobs:
         working-directory: apps/web
 
       # allure-results/ から Allure レポートを生成（リッチなテスト結果ビューア）
-      # --history-path で JSONL 履歴ファイルを指定すると、トレンドグラフが表示される。
-      # appendHistory（デフォルト true）により現在の実行結果が履歴ファイルに追記される。
+      # --history-path: 履歴ファイルが存在すれば読み込んで追記、なければ新規作成する。
+      # これにより初回実行でも履歴ファイルが生成され、以降トレンドグラフが表示される。
       - name: Generate Allure report
         if: always()
-        run: |
-          HISTORY_OPT=""
-          if [ -f allure-history.jsonl ]; then
-            HISTORY_OPT="--history-path allure-history.jsonl"
-          fi
-          rm -rf allure-report && bunx allure generate allure-results -o allure-report $HISTORY_OPT
+        run: rm -rf allure-report && bunx allure generate allure-results -o allure-report --history-path allure-history.jsonl
         working-directory: apps/web
 
       # reg-cli: .reg/expected/（ベースライン）と .reg/actual/（現在）を比較し、
@@ -215,10 +211,8 @@ jobs:
           cp -r .reg/* _gh-pages-staging/${DEST}/reg-report/ || true
 
           # Allure 履歴ファイル（JSONL）を共有パスにコピー（全 PR で履歴を共有するため）
-          if [ -f allure-history.jsonl ]; then
-            mkdir -p _gh-pages-staging/latest/web-e2e
-            cp allure-history.jsonl _gh-pages-staging/latest/web-e2e/allure-history.jsonl
-          fi
+          mkdir -p _gh-pages-staging/latest/web-e2e
+          cp allure-history.jsonl _gh-pages-staging/latest/web-e2e/allure-history.jsonl
         working-directory: apps/web
 
       # deploy ジョブに渡すためのアーティファクト（ステージング済みディレクトリ一式）
