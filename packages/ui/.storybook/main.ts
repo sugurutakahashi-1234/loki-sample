@@ -22,12 +22,6 @@ const config: StorybookConfig = {
     // addon-a11y: アクセシビリティチェック（axe-core ベース）を Storybook UI に統合
     "@storybook/addon-a11y",
 
-    // addon-themes: Storybook UI でテーマ（light/dark 等）を切り替え
-    "@storybook/addon-themes",
-
-    // addon-links: ストーリー間のナビゲーションリンクを提供
-    "@storybook/addon-links",
-
     // addon-pseudo-states: CSS 疑似状態（:hover, :focus 等）を強制表示し VRT にも活用可能
     "storybook-addon-pseudo-states",
 
