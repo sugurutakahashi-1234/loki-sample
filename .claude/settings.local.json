@@ -46,7 +46,9 @@
       "Bash(cat:*)",
       "WebFetch(domain:repobuddy.github.io)",
       "WebFetch(domain:registry.npmjs.org)",
-      "Bash(pip3 install:*)"
+      "Bash(pip3 install:*)",
+      "Bash(cp:*)",
+      "Bash(LEFTHOOK_VERBOSE=1 bunx lefthook:*)"
     ]
   }
 }

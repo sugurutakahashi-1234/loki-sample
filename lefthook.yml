@@ -32,7 +32,7 @@ pre-commit:
       stage_fixed: true
     # コンフリクトマーカー（<<<<<<< 等）の残存チェック
     - name: conflict-markers
-      run: grep -rn '<<<<<<< \|======= \|>>>>>>> ' {staged_files} && echo "コンフリクトマーカーが残っています" && exit 1 || exit 0
+      run: grep -n '<<<<<<< \|======= \|>>>>>>> ' {staged_files} < /dev/null && echo "コンフリクトマーカーが残っています" && exit 1 || exit 0
       glob:
         - "**/*.{js,jsx,ts,tsx,json,jsonc,css,md,yml,yaml}"
     # .env ファイルの誤コミット防止
