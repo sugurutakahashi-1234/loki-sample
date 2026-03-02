@@ -22,11 +22,20 @@ const config: StorybookConfig = {
     // addon-a11y: アクセシビリティチェック（axe-core ベース）を Storybook UI に統合
     "@storybook/addon-a11y",
 
+    // addon-themes: Storybook UI でテーマ（light/dark 等）を切り替え
+    "@storybook/addon-themes",
+
+    // addon-links: ストーリー間のナビゲーションリンクを提供
+    "@storybook/addon-links",
+
+    // addon-pseudo-states: CSS 疑似状態（:hover, :focus 等）を強制表示し VRT にも活用可能
+    "storybook-addon-pseudo-states",
+
     // storybook-addon-vis: VRT 用の画像スナップショット比較機能を提供
     "storybook-addon-vis",
 
     // addon-mcp: AI エージェントが MCP 経由で Storybook のコンポーネント情報にアクセス可能にする
-    // test: false は addon-vitest の UI 連携が無効のため不要
+    // test: false は run-story-tests ツールが Storybook 10.3.0-alpha.8 以上を要求するため無効化
     {
       name: "@storybook/addon-mcp",
       options: {
