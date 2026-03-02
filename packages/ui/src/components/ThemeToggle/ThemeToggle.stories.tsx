@@ -42,7 +42,6 @@ export const Default: Story = {
 
 /** クリックでテーマがトグルすることを検証 */
 export const CycleThemes: Story = {
-  tags: ["!snapshot"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole("button");

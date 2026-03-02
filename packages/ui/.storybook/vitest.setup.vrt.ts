@@ -54,6 +54,17 @@ const fitBodyToContent = () => {
   style.height = "auto";
   document.documentElement.style.minHeight = "auto";
   document.documentElement.style.height = "auto";
+
+  // Vitest browser mode の iframe がコンテンツをクリッピングするため、
+  // コンテンツが iframe の高さを超える場合のみリサイズする。
+  // 常にリサイズすると scrollHeight の端数切り上げにより
+  // iframe 背景が 1px 程度はみ出して白線として写り込む。
+  if (window.frameElement) {
+    const frame = window.frameElement as HTMLElement;
+    if (document.body.scrollHeight > frame.clientHeight) {
+      frame.style.height = `${document.body.scrollHeight}px`;
+    }
+  }
 };
 
 vis.setup({
