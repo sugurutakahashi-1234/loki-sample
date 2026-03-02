@@ -12,7 +12,6 @@ import { TextField } from "./TextField";
 const meta = {
   title: "Components/TextField",
   component: TextField,
-  tags: ["autodocs"],
   argTypes: {
     variant: {
       control: "select",
@@ -31,12 +30,11 @@ export const Default: Story = {
   },
 };
 
-/** テキスト入力テスト（VRT 対象外: play 関数で DOM が変化するためスクリーンショットが不安定） */
+/** テキスト入力テスト */
 export const Typing: Story = {
   args: {
     placeholder: "Enter text...",
   },
-  tags: ["skip-vrt"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByRole("textbox");

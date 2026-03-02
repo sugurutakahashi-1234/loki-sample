@@ -12,7 +12,6 @@ import { ThemeToggle } from "./ThemeToggle";
 const meta = {
   title: "Components/ThemeToggle",
   component: ThemeToggle,
-  tags: ["autodocs"],
   decorators: [
     (Story) => (
       <div className="flex items-center gap-4 p-4">
@@ -43,7 +42,6 @@ export const Default: Story = {
 
 /** クリックでテーマがトグルすることを検証 */
 export const CycleThemes: Story = {
-  tags: ["skip-vrt"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole("button");

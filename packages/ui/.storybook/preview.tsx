@@ -73,6 +73,7 @@ const preview: Preview = {
   initialGlobals: {
     theme: "side-by-side",
   },
+  tags: ["autodocs", "snapshot"],
   decorators: [withTheme],
   parameters: {
     controls: {
@@ -91,6 +92,7 @@ const preview: Preview = {
       config: {
         rules: [{ id: "region", enabled: false }],
       },
+      test: "error",
     },
   },
 };
