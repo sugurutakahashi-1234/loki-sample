@@ -8,11 +8,12 @@ name: E2E Tests
 on:
   pull_request:
     branches: [main]
-    # apps/web/ と packages/ui/ の変更時に実行
+    # apps/web/、packages/ui/、または bun.lock の変更時に実行
     # UI コンポーネントの変更が Web アプリに影響する可能性があるため両方を監視
     paths:
       - "apps/web/**"
       - "packages/ui/**"
+      - "bun.lock"
   workflow_dispatch:
 
 permissions:
