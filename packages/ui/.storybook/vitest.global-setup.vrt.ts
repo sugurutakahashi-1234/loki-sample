@@ -9,8 +9,35 @@
  * vitest globalSetup の teardown は default export した関数の戻り値として定義する。
  * named export の teardown は vitest に認識されないため注意。
  */
-import { cpSync, existsSync, readdirSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { basename, dirname, join, relative } from "node:path";
+
+/**
+ * スナップショットをフラット化してコピーする。
+ * 入力: components/Badge/Badge.stories.tsx/error-dark.png
+ * → 親ディレクトリ "Badge.stories.tsx" から .stories.tsx を除去 → "Badge"
+ * → 出力: destDir/Badge/error-dark.png
+ */
+const copyFlattened = (srcDir: string, destDir: string) => {
+  const walkFiles = (dir: string): string[] => {
+    const entries = readdirSync(dir, { withFileTypes: true });
+    return entries.flatMap((e) =>
+      e.isDirectory() ? walkFiles(join(dir, e.name)) : [join(dir, e.name)]
+    );
+  };
+
+  for (const srcPath of walkFiles(srcDir)) {
+    const rel = relative(srcDir, srcPath);
+    const fileName = basename(rel);
+    const parentDir = basename(dirname(rel));
+    // "Badge.stories.tsx" → "Badge"
+    const flatDir = parentDir.replace(/\.stories\.tsx?$/, "");
+    const destPath = join(destDir, flatDir, fileName);
+
+    mkdirSync(dirname(destPath), { recursive: true });
+    cpSync(srcPath, destPath);
+  }
+};
 
 // vitest globalSetup は default export した関数を setup として実行し、
 // その戻り値の関数を teardown として実行する
@@ -43,14 +70,14 @@ const setup = () => {
 
     // コピー先をクリーンアップ（削除済みストーリーの残存防止）
     rmSync(regActualDir, { recursive: true, force: true });
-    cpSync(snapshotDir, regActualDir, { recursive: true });
-    console.log(`Copied: ${snapshotDir} -> ${regActualDir}`);
+    copyFlattened(snapshotDir, regActualDir);
+    console.log(`Copied (flattened): ${snapshotDir} -> ${regActualDir}`);
 
     // macOS のみ: git 管理用の vrt/screenshots/ にもコピー
     if (process.platform === "darwin") {
       rmSync(screenshotsDir, { recursive: true, force: true });
-      cpSync(snapshotDir, screenshotsDir, { recursive: true });
-      console.log(`Copied: ${snapshotDir} -> ${screenshotsDir}`);
+      copyFlattened(snapshotDir, screenshotsDir);
+      console.log(`Copied (flattened): ${snapshotDir} -> ${screenshotsDir}`);
     }
   };
 };

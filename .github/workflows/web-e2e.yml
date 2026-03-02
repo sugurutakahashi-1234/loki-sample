@@ -127,11 +127,11 @@ jobs:
         working-directory: apps/web
 
       # allure-results/ から Allure レポートを生成（リッチなテスト結果ビューア）
-      # --history-path: 履歴ファイルが存在すれば読み込んで追記、なければ新規作成する。
-      # これにより初回実行でも履歴ファイルが生成され、以降トレンドグラフが表示される。
+      # allurerc.json の historyPath で履歴ファイルのパスを指定している。
+      # 履歴ファイルが存在すれば読み込んで追記、なければ新規作成される。
       - name: Generate Allure report
         if: always()
-        run: rm -rf allure-report && bunx allure generate allure-results -o allure-report --history-path allure-history.jsonl
+        run: rm -rf allure-report && bunx allure generate allure-results
         working-directory: apps/web
 
       # reg-cli: .reg/expected/（ベースライン）と .reg/actual/（現在）を比較し、
@@ -140,7 +140,7 @@ jobs:
         if: always()
         id: reg-result
         run: |
-          bun run e2e:report:reg || true
+          bun run e2e:reg || true
 
           # .reg/out.json から各カテゴリの件数を取得
           CHANGED=$(jq '.diffItems | length' .reg/out.json)
@@ -212,7 +212,7 @@ jobs:
 
           # Allure 履歴ファイル（JSONL）を共有パスにコピー（全 PR で履歴を共有するため）
           mkdir -p _gh-pages-staging/latest/web-e2e
-          cp allure-history.jsonl _gh-pages-staging/latest/web-e2e/allure-history.jsonl
+          cp allure-history.jsonl _gh-pages-staging/latest/web-e2e/allure-history.jsonl || true
         working-directory: apps/web
 
       # deploy ジョブに渡すためのアーティファクト（ステージング済みディレクトリ一式）
