@@ -50,7 +50,8 @@
       "Bash(cp:*)",
       "Bash(LEFTHOOK_VERBOSE=1 bunx lefthook:*)",
       "Bash(/tmp/e2e-timing-analysis.txt:*)",
-      "WebFetch(domain:evilmartians.com)"
+      "WebFetch(domain:evilmartians.com)",
+      "WebFetch(domain:main.vitest.dev)"
     ]
   }
 }
