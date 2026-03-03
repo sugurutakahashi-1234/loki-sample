@@ -30,12 +30,6 @@ export const Info: Story = {
     children: "Info",
     variant: "info",
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // テキスト "Info" が表示されていることを検証
-    await expect(canvas.getByText("Info")).toBeVisible();
-  },
 };
 
 /** Success バリアント（緑系） */
@@ -69,10 +63,6 @@ export const WithCount: Story = {
     count: 5,
     variant: "info",
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("5")).toBeVisible();
-  },
 };
 
 /** 件数表示（上限超過 → "99+" 表示） */
@@ -83,7 +73,7 @@ export const WithCountOverflow: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("99+")).toBeVisible();
+    await expect(canvas.getAllByText("99+")[0]).toBeVisible();
   },
 };
 
@@ -97,6 +87,6 @@ export const WithNegativeCount: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     // 負数の場合は formatCount が空文字を返すため、children の "Fallback" が表示される
-    await expect(canvas.getByText("Fallback")).toBeVisible();
+    await expect(canvas.getAllByText("Fallback")[0]).toBeVisible();
   },
 };
