@@ -34,7 +34,9 @@ export const Default: Story = {};
 export const CycleThemes: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const [button] = canvas.getAllByRole("button") as [HTMLElement];
+    // ThemeToggle は useEffect でマウント完了するまでプレースホルダーを表示するため、
+    // ボタンが出現するまで待機する
+    const [button] = (await canvas.findAllByRole("button")) as [HTMLElement];
     const initialLabel = button.getAttribute("aria-label") || "";
     const startsLight = /ライト/.test(initialLabel);
 
