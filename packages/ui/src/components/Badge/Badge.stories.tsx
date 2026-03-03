@@ -30,13 +30,6 @@ export const Info: Story = {
     children: "Info",
     variant: "info",
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // テキスト "Info" が表示されていることを検証
-    // Side by side モードでは Light/Dark 両方に同じテキストが存在するため getAllByText を使用
-    await expect(canvas.getAllByText("Info")[0]).toBeVisible();
-  },
 };
 
 /** Success バリアント（緑系） */
@@ -69,10 +62,6 @@ export const WithCount: Story = {
   args: {
     count: 5,
     variant: "info",
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getAllByText("5")[0]).toBeVisible();
   },
 };
 

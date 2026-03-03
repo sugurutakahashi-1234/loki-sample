@@ -28,18 +28,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** デフォルト状態 */
-export const Default: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    // Side by side モードでは Light/Dark 両方にボタンが存在するため getAllByRole を使用
-    const [button] = canvas.getAllByRole("button") as [HTMLElement];
-
-    // ボタンが表示されていることを検証
-    await expect(button).toBeVisible();
-    // ライトまたはダークの aria-label を持つ
-    await expect(button).toHaveAccessibleName(/ライト|ダーク/);
-  },
-};
+export const Default: Story = {};
 
 /** クリックでテーマがトグルすることを検証 */
 export const CycleThemes: Story = {

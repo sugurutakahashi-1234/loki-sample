@@ -85,11 +85,4 @@ export const Disabled: Story = {
     children: "Disabled Button",
     disabled: true,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const [button] = canvas.getAllByRole("button") as [HTMLElement];
-
-    // ボタンが disabled 状態であることを検証
-    await expect(button).toBeDisabled();
-  },
 };

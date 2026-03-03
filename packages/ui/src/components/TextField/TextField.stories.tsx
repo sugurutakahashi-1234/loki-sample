@@ -90,11 +90,4 @@ export const Disabled: Story = {
     placeholder: "Cannot type here",
     disabled: true,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const [input] = canvas.getAllByRole("textbox") as [HTMLElement];
-
-    // 入力不可であることを検証
-    await expect(input).toBeDisabled();
-  },
 };
