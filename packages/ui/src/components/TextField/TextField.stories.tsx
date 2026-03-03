@@ -38,7 +38,7 @@ export const Typing: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     // Side by side モードでは Light/Dark 両方に入力欄が存在するため getAllByRole を使用
-    const [input] = canvas.getAllByRole("textbox");
+    const [input] = canvas.getAllByRole("textbox") as [HTMLElement];
 
     // テキストを入力し、値が反映されることを検証
     await userEvent.type(input, "Hello, World!");
@@ -65,11 +65,11 @@ export const WithError: Story = {
     const canvas = within(canvasElement);
 
     // エラーメッセージが表示されていることを検証
-    const [errorMessage] = canvas.getAllByRole("alert");
+    const [errorMessage] = canvas.getAllByRole("alert") as [HTMLElement];
     await expect(errorMessage).toHaveTextContent("Invalid email address");
 
     // input に aria-invalid が設定されていることを検証
-    const [input] = canvas.getAllByRole("textbox");
+    const [input] = canvas.getAllByRole("textbox") as [HTMLElement];
     await expect(input).toHaveAttribute("aria-invalid", "true");
   },
 };
@@ -92,7 +92,7 @@ export const Disabled: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const [input] = canvas.getAllByRole("textbox");
+    const [input] = canvas.getAllByRole("textbox") as [HTMLElement];
 
     // 入力不可であることを検証
     await expect(input).toBeDisabled();

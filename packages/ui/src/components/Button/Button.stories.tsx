@@ -39,7 +39,7 @@ export const Primary: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     // Side by side モードでは Light/Dark 両方にボタンが存在するため getAllByRole を使用
-    const [button] = canvas.getAllByRole("button");
+    const [button] = canvas.getAllByRole("button") as [HTMLElement];
 
     // クリック → onClick が呼び出されることを検証
     await userEvent.click(button);
@@ -87,7 +87,7 @@ export const Disabled: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const [button] = canvas.getAllByRole("button");
+    const [button] = canvas.getAllByRole("button") as [HTMLElement];
 
     // ボタンが disabled 状態であることを検証
     await expect(button).toBeDisabled();
