@@ -1,5 +1,9 @@
 # Storybook VRT + E2E Sample
 
+[![CI](https://github.com/sugurutakahashi-1234/storybook-vrt-sample/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/sugurutakahashi-1234/storybook-vrt-sample/actions/workflows/ci.yml)
+[![Chromatic](https://github.com/sugurutakahashi-1234/storybook-vrt-sample/actions/workflows/chromatic.yml/badge.svg?branch=main)](https://github.com/sugurutakahashi-1234/storybook-vrt-sample/actions/workflows/chromatic.yml)
+[![Storybook](https://img.shields.io/badge/Storybook-Chromatic-ff4785)](https://main--69a67d8928ff3a182e0b5dfa.chromatic.com)
+
 Storybook コンポーネントのビジュアルリグレッションテスト（VRT）と E2E テストのサンプルプロジェクトです。
 
 ## 技術スタック
@@ -219,6 +223,13 @@ PR 作成時に GitHub Actions が自動実行されます。
 - **CI** (`ci.yml`): 全 PR で Lint / Typecheck / Knip / Test / Build を実行
 - **Storybook VRT** (`storybook-vrt.yml`): `packages/ui/` の変更時に実行
 - **E2E テスト** (`web-e2e.yml`): `apps/web/` または `packages/ui/` の変更時に実行
+- **Chromatic** (`chromatic.yml`): main マージ時に Storybook を Chromatic へパブリッシュ
+
+### Storybook ホスティング
+
+main ブランチの Storybook は Chromatic でホスティングされています。
+
+https://main--69a67d8928ff3a182e0b5dfa.chromatic.com
 
 PR 時はベースブランチからベースラインを動的生成し、reg-cli で差分レポートを生成します。
 VRT・E2E ともにスクリーンショット撮影が目的であり、ビジュアル変更があってもテストは失敗しません。差分は reg-cli レポートで確認します。
