@@ -1,7 +1,9 @@
 # ==============================================
 # Chromatic パブリッシュワークフロー
 # ==============================================
-# main ブランチへの push 時に Storybook を Chromatic へパブリッシュする。
+# Storybook を Chromatic へパブリッシュする。
+# - main push 時: ベースラインの更新
+# - PR 時: プレビュービルド + PR コメントでリンク共有
 # ビジュアルテストは storybook-addon-vis + reg-cli で構築済みのため、
 # Chromatic は Storybook ホスティング専用として使用する。
 #
@@ -11,8 +13,14 @@
 name: Chromatic
 
 on:
+  # main push 時: Chromatic のベースラインを更新
   push:
     branches: [main]
+    paths:
+      - "packages/ui/**"
+      - "bun.lock"
+  # PR 時: プレビュービルドを作成し、PR コメントでリンクを共有
+  pull_request:
     paths:
       - "packages/ui/**"
       - "bun.lock"
@@ -24,24 +32,33 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      # ── セットアップ ──
+      # ────────────────────────────────────────
+      # セットアップ
+      # ────────────────────────────────────────
       - uses: Kesin11/actions-timeline@v3
       - uses: actions/checkout@v6
         with:
+          # Chromatic はコミット履歴を使って変更差分を検出するため全履歴が必要
           fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
 
-      # ── ビルド ──
+      # ────────────────────────────────────────
+      # ビルド
+      # ────────────────────────────────────────
+
       # chromaui/action 内部は node20 で動くため、
       # bun で事前ビルドして storybookBuildDir で渡す
       - name: Build Storybook
         run: bun run build-storybook
         working-directory: packages/ui
 
-      # ── パブリッシュ ──
+      # ────────────────────────────────────────
+      # パブリッシュ
+      # ────────────────────────────────────────
+
       - name: Publish to Chromatic
         id: chromatic
         uses: chromaui/action@c93e0bc3a63aa176e14a75b61a31847cbfdd341c # v1
@@ -53,6 +70,11 @@ jobs:
           # すべてのスナップショット差分を自動承認（VRT は別ツールで実施済みのため）
           autoAcceptChanges: true
 
+      # ────────────────────────────────────────
+      # レポート
+      # ────────────────────────────────────────
+
+      # Job Summary にビルド結果の URL を表示
       - name: Add summary
         run: |
           echo "## Chromatic" >> $GITHUB_STEP_SUMMARY
@@ -61,12 +83,17 @@ jobs:
           echo "| Storybook | ${{ steps.chromatic.outputs.storybookUrl }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build | ${{ steps.chromatic.outputs.buildUrl }} |" >> $GITHUB_STEP_SUMMARY
 
-  # ── ワークフロー実行タイムライン可視化 ──
-  actions-timeline:
-    name: Actions Timeline
-    needs: [publish]
-    if: ${{ !cancelled() }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: Kesin11/actions-timeline@v3
+      # sticky-pull-request-comment: 同じ header のコメントがあれば更新、なければ新規作成
+      # storybookUrl はコミットごとの URL（PR 時点の Storybook を確認できる）
+      - name: Comment PR with Storybook link
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: chromatic-storybook
+          message: |
+            ## 🚀 Chromatic Storybook Preview
+
+            | Key | URL |
+            |-----|-----|
+            | Storybook | ${{ steps.chromatic.outputs.storybookUrl }} |
+            | Build | ${{ steps.chromatic.outputs.buildUrl }} |
