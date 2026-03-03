@@ -1,8 +1,10 @@
 # ==============================================
 # Git Hooks 設定（Lefthook）
 # ==============================================
-# pre-commit: ステージされたファイルのみ対象（高速）
-# pre-push:   プロジェクト全体を対象（プッシュ前の最終チェック）
+# post-checkout: ブランチ切替時の自動処理
+# post-merge:    マージ・プル時の自動処理
+# pre-commit:    ステージされたファイルのみ対象（高速）
+# pre-push:      プロジェクト全体を対象（プッシュ前の最終チェック）
 #
 # ==============================================
 
@@ -10,6 +12,22 @@
 output:
   - summary
   - failure
+
+# ブランチ切替時: bun.lock に変更があれば依存関係を自動同期
+# post-checkout は 3 引数（前 HEAD, 後 HEAD, ブランチフラグ）を受け取る
+# {1} = ブランチ切替フラグ（1: ブランチ切替、0: ファイルチェックアウト）
+post-checkout:
+  jobs:
+    - name: bun-install
+      run: |
+        [ "{1}" != "1" ] && exit 0
+        git diff HEAD@{1} HEAD --quiet -- bun.lock 2>/dev/null || bun install --frozen-lockfile
+
+# マージ・プル時: bun.lock に変更があれば依存関係を自動同期
+post-merge:
+  jobs:
+    - name: bun-install
+      run: git diff HEAD@{1} HEAD --quiet -- bun.lock 2>/dev/null || bun install --frozen-lockfile
 
 # コミット時: ステージされたファイルに対して実行
 # 手動実行: bunx lefthook run pre-commit --force
@@ -54,6 +72,13 @@ pre-push:
     # main ブランチへの直接プッシュを禁止
     - name: protect-main
       run: '[ "$(git branch --show-current)" = "main" ] && echo "❌ main ブランチへの直接プッシュは禁止です" && exit 1 || exit 0'
+    # マージ済み PR のブランチへのプッシュを防止（gh CLI 必須）
+    - name: prevent-push-merged-branch
+      run: |
+        branch=$(git branch --show-current)
+        [ "$branch" = "main" ] && exit 0
+        state=$(gh pr view "$branch" --json state --jq .state 2>/dev/null || echo "NONE")
+        [ "$state" = "MERGED" ] && echo "❌ このブランチの PR は既にマージ済みです" && exit 1 || exit 0
 
     # ── 静的解析 ──
     # Oxlint + Oxfmt によるリント + フォーマットチェック（修正なし、CI と同等）
