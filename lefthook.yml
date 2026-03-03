@@ -54,6 +54,13 @@ pre-push:
     # main ブランチへの直接プッシュを禁止
     - name: protect-main
       run: '[ "$(git branch --show-current)" = "main" ] && echo "❌ main ブランチへの直接プッシュは禁止です" && exit 1 || exit 0'
+    # マージ済み PR のブランチへのプッシュを防止（gh CLI 必須）
+    - name: prevent-push-merged-branch
+      run: |
+        branch=$(git branch --show-current)
+        [ "$branch" = "main" ] && exit 0
+        state=$(gh pr view "$branch" --json state --jq .state 2>/dev/null || echo "NONE")
+        [ "$state" = "MERGED" ] && echo "❌ このブランチの PR は既にマージ済みです" && exit 1 || exit 0
 
     # ── 静的解析 ──
     # Oxlint + Oxfmt によるリント + フォーマットチェック（修正なし、CI と同等）
