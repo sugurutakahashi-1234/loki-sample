@@ -32,13 +32,11 @@ storybook-vrt-sample/
 ### 前提条件
 
 [mise](https://mise.jdx.dev/) でランタイムと CLI ツールを管理しています。
+`mise activate` 設定済みであればプロジェクトディレクトリに移動するだけでツール（node, bun, gh）が自動インストールされます。
 
 ```bash
 # mise 未インストールの場合
 curl https://mise.run | sh
-
-# ツールのインストール（node, bun, gh）
-mise install
 ```
 
 ### プロジェクトセットアップ
@@ -50,6 +48,9 @@ bun install
 # Playwright ブラウザインストール（VRT の vitest browser mode + E2E の両方で使用）
 cd packages/ui && bunx playwright install --with-deps && cd ../..
 cd apps/web && bunx playwright install --with-deps && cd ../..
+
+# 全チェック実行（リント・型チェック・テスト・ビルド・VRT・E2E）
+bun run ci:full
 ```
 
 ## 開発ワークフロー
