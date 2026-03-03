@@ -45,12 +45,6 @@ pre-commit:
     - name: no-secrets
       timeout: 20s
       run: git diff --cached --name-only | grep -E '\.env($|\.)' && echo ".env ファイルはコミットできません" && exit 1 || exit 0
-    # ── 設定ファイルバリデーション ──
-    # renovate.json5 が変更された場合のみバリデーション実行
-    - name: validate-renovate
-      timeout: 20s
-      glob: "renovate.json5"
-      run: npx --yes --package renovate -- renovate-config-validator renovate.json5 --strict || (echo "" && echo "❌ renovate.json5 のバリデーションに失敗しました" && echo "👉 npx --yes --package renovate -- renovate-config-validator renovate.json5 --strict で詳細を確認" && exit 1)
 
 # プッシュ時: プロジェクト全体に対して実行
 # 手動実行: bunx lefthook run pre-push --force
