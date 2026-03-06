@@ -12,6 +12,7 @@ on:
     paths:
       - "packages/ui/**"
       - "bun.lock"
+      - ".github/workflows/storybook-vrt.yml"
   workflow_dispatch:
 
 permissions:
