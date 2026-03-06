@@ -235,10 +235,10 @@ PR 作成時に GitHub Actions が自動実行されます。
 
 main ブランチの Storybook は 2 つのプラットフォームでホスティングされています。
 
-| プラットフォーム | URL | アクセス制御 | 用途 |
-| --- | --- | --- | --- |
-| Chromatic | https://main--69a67d8928ff3a182e0b5dfa.chromatic.com | 公開 | 外部共有・レビュー用 |
-| Cloudflare Pages | `https://<project-name>.pages.dev` | Cloudflare Access（Zero Trust） | チーム内限定共有 |
+| プラットフォーム | URL                                                  | アクセス制御                    | 用途                 |
+| ---------------- | ---------------------------------------------------- | ------------------------------- | -------------------- |
+| Chromatic        | https://main--69a67d8928ff3a182e0b5dfa.chromatic.com | 公開                            | 外部共有・レビュー用 |
+| Cloudflare Pages | `https://<project-name>.pages.dev`                   | Cloudflare Access（Zero Trust） | チーム内限定共有     |
 
 PR 時はベースブランチからベースラインを動的生成し、reg-cli で差分レポートを生成します。
 VRT・E2E ともにスクリーンショット撮影が目的であり、ビジュアル変更があってもテストは失敗しません。差分は reg-cli レポートで確認します。
