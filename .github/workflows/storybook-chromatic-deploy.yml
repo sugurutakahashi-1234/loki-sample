@@ -23,11 +23,13 @@ on:
     paths:
       - "packages/ui/**"
       - "bun.lock"
+      - ".github/workflows/storybook-chromatic-deploy.yml"
   # PR 時: プレビューデプロイを作成し、PR コメントでリンクを共有
   pull_request:
     paths:
       - "packages/ui/**"
       - "bun.lock"
+      - ".github/workflows/storybook-chromatic-deploy.yml"
   workflow_dispatch:
 
 permissions:
