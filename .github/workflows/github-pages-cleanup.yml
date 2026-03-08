@@ -5,7 +5,7 @@
 # 削除順: 不明なディレクトリ → manual/（手動実行）→ pr/（PR レポート）の優先度で古い順に削除。
 # latest/ は共有の Allure 履歴を保持するため削除しない。
 # レポートは可能な限り残しておき、容量が逼迫した場合にだけクリーンアップする。
-name: Cleanup GitHub Pages
+name: 🧹 Cleanup GitHub Pages
 
 on:
   pull_request:

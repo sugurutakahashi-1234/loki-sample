@@ -7,16 +7,18 @@
 # セクション構成は ci スクリプト・lefthook pre-push と統一:
 #   静的解析 → ランタイム → 統合
 # ==============================================
-name: CI
+name: ✅ CI
 
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 jobs:
   ci:
-    name: Lint / Syncpack / Typecheck / Knip / Test / Build
+    name: ✅ Lint / Syncpack / Typecheck / Knip / Test / Build
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

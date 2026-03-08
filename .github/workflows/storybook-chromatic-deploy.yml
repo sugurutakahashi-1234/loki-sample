@@ -16,7 +16,7 @@
 # 公式ドキュメント:
 #   https://www.chromatic.com/docs/github-actions/
 # ==============================================
-name: Storybook Chromatic Deploy
+name: 🟣 Storybook Chromatic Deploy
 
 on:
   # main push 時: Chromatic へプロダクションデプロイ
@@ -26,9 +26,10 @@ on:
       - "packages/ui/**"
       - "bun.lock"
       - ".github/workflows/storybook-chromatic-deploy.yml"
-  # PR 時: 全 PR で起動し、changes ジョブで paths をチェック
+  # PR 時: 全 PR で起動し、changes ジョブで paths をチェック（Draft PR は skip）
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
@@ -37,6 +38,7 @@ permissions:
 
 jobs:
   changes:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -53,7 +55,7 @@ jobs:
               - '.github/workflows/storybook-chromatic-deploy.yml'
 
   deploy:
-    name: Deploy to Chromatic
+    name: 🟣 Deploy to Chromatic
     needs: changes
     if: github.event_name != 'pull_request' || needs.changes.outputs.should-run == 'true'
     runs-on: ubuntu-latest
