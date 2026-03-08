@@ -25,10 +25,16 @@
   enabled: true,
 
   packageRules: [
-    // automerge を無効化（すべての更新を手動レビュー）
+    // マイナー・パッチは CI 通過後に自動マージ
     {
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      automerge: true,
+    },
+
+    // メジャーアップデートは手動レビュー
+    {
+      matchUpdateTypes: ["major"],
       automerge: false,
-      matchPackageNames: ["*"],
     },
 
     // GitHub Actions のダイジェストピン留めを有効化（config:best-practices のデフォルト）
@@ -58,7 +64,7 @@
   prHourlyLimit: 0,
   prConcurrentLimit: 10,
   labels: [],
-  draftPR: true,
+  draftPR: false,
 
   // コミットメッセージ: "chore: [Renovate] update {{depName}}"
   commitMessagePrefix: "chore:",
