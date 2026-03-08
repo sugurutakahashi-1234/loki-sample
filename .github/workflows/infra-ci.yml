@@ -97,6 +97,7 @@ jobs:
           # .env のパスを -f で明示する必要がある
           # unset TF_WORKSPACE: dflook がデフォルトで TF_WORKSPACE=default を設定するが、
           # cloud block の workspaces.name と競合するため解除する
+          # ref: https://github.com/dflook/terraform-github-actions/issues/295
           TERRAFORM_PRE_RUN: |
             unset TF_WORKSPACE
             curl -sfS https://dotenvx.sh/install.sh | sh
@@ -114,6 +115,7 @@ jobs:
           # .env のパスを -f で明示する必要がある
           # unset TF_WORKSPACE: dflook がデフォルトで TF_WORKSPACE=default を設定するが、
           # cloud block の workspaces.name と競合するため解除する
+          # ref: https://github.com/dflook/terraform-github-actions/issues/295
           TERRAFORM_PRE_RUN: |
             unset TF_WORKSPACE
             curl -sfS https://dotenvx.sh/install.sh | sh
