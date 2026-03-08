@@ -1,0 +1,126 @@
+# ==============================================
+# インフラ CI ワークフロー
+# ==============================================
+# infra/ 配下の Terraform モジュールに対して
+# フォーマット・バリデーション・リント・plan を実行する。
+#
+# infra/*/ のサブディレクトリを自動検出して処理するため、
+# 新しいモジュール（例: infra/vercel/）を追加しても
+# ワークフローの変更は不要。
+#
+# terraform plan の結果を PR コメントに表示し（tfcmt）、
+# 未適用の変更（apply 漏れ）があれば CI を失敗させる。
+#
+# ローカルでは lefthook が同等のチェックを実行する:
+#   pre-commit: terraform fmt / validate / tflint
+#   pre-push:   terraform plan（apply 漏れ検出）
+#
+# 必要な設定:
+#   Secrets:
+#     DOTENV_PRIVATE_KEY_INFRA — infra/cloudflare-access/.env.keys の DOTENV_PRIVATE_KEY
+#       dotenvx で暗号化された .env を復号し、全環境変数（CLOUDFLARE_API_TOKEN, TF_VAR_* 等）を注入する
+#       ※ 個別の Secrets 登録は不要。.env に変数を追加すれば CI にも自動反映される
+#     TF_API_TOKEN — HCP Terraform (Terraform Cloud) の API トークン
+#       state の読み書きに必要。Organization Settings > API Tokens で Team Token を作成
+#
+# Note:
+#   以前は dflook/terraform-github-actions を使用していたが、
+#   cloud block の workspaces.name と TF_WORKSPACE 環境変数が競合する問題があり、
+#   hashicorp/setup-terraform + tfcmt に移行した。
+#   ref: https://github.com/dflook/terraform-github-actions/issues/295
+# ==============================================
+name: Infra CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/infra-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  pull-requests: write
+
+jobs:
+  # ── 静的解析（Secrets 不要） ──
+  lint:
+    name: Terraform Format / Validate / Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: Kesin11/actions-timeline@v3
+      - uses: actions/checkout@v6
+      - uses: hashicorp/setup-terraform@v4
+      - uses: terraform-linters/setup-tflint@v6
+
+      # infra/ 配下を一括チェック
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive infra/
+
+      # validate には init が必要（provider のスキーマ取得）
+      # -backend=false で cloud backend への接続をスキップ（Secrets 不要にする）
+      - name: Terraform Validate
+        run: |
+          for dir in infra/*/; do
+            echo "=== $dir ==="
+            terraform -chdir="$dir" init -backend=false
+            terraform -chdir="$dir" validate
+          done
+
+      - name: TFLint
+        run: |
+          for dir in infra/*/; do
+            echo "=== $dir ==="
+            tflint --chdir="$dir"
+          done
+
+  # ── Plan + apply 漏れ検出（Secrets 必要） ──
+  plan:
+    name: Terraform Plan
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # HCP Terraform の認証トークン（cloud block の state 読み書きに必要）
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+    steps:
+      - uses: Kesin11/actions-timeline@v3
+      - uses: actions/checkout@v6
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          # tfcmt が terraform の stdout をパースするため wrapper は無効化
+          terraform_wrapper: false
+      - uses: shmokmt/actions-setup-tfcmt@v2
+
+      # dotenvx で暗号化された .env を復号し、環境変数として GITHUB_ENV に書き出す
+      # これにより CLOUDFLARE_API_TOKEN や TF_VAR_* が後続ステップで利用可能になる
+      # infra/*/ 内に .env があるディレクトリを自動検出して復号する
+      # dotenvx CI 設定: https://dotenvx.com/docs/cis/github-actions
+      - name: Decrypt .env
+        run: |
+          curl -sfS https://dotenvx.sh/install.sh | sh
+          for env_file in infra/*/.env; do
+            [ -f "$env_file" ] || continue
+            echo "=== Decrypting $env_file ==="
+            dotenvx get -f "$env_file" --format shell | tr ' ' '\n' >> "$GITHUB_ENV"
+          done
+        env:
+          DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY_INFRA }}
+
+      # infra/*/ を走査して init + plan を実行
+      # tfcmt が plan 結果を整形して PR コメントに自動投稿する
+      # -var "target" でモジュールごとにコメントを区別（上書き防止）
+      # -detailed-exitcode: 差分なし=0, エラー=1, 差分あり=2
+      # exit code 2 の場合 CI が失敗し、apply 漏れとして検出される
+      - name: Terraform Plan
+        run: |
+          for dir in infra/*/; do
+            module=$(basename "$dir")
+            echo "=== $module ==="
+            terraform -chdir="$dir" init
+            tfcmt -var "target:$module" plan --skip-no-changes --disable-label -- terraform -chdir="$dir" plan -no-color -detailed-exitcode
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
