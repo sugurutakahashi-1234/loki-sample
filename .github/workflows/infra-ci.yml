@@ -94,8 +94,9 @@ jobs:
           TERRAFORM_CLOUD_TOKENS: app.terraform.io=${{ secrets.TF_API_TOKEN }}
           DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY_INFRA }}
           TERRAFORM_PRE_RUN: |
+            unset TF_WORKSPACE
             curl -sfS https://dotenvx.sh/install.sh | sh
-            eval $(dotenvx get --format shell)
+            eval $(dotenvx get --format shell -f infra/cloudflare-access/.env)
 
       # dflook/terraform-check は plan に差分があれば CI を失敗させる（apply 漏れ検出）
       - name: Terraform Check (cloudflare-access)
@@ -106,5 +107,6 @@ jobs:
           TERRAFORM_CLOUD_TOKENS: app.terraform.io=${{ secrets.TF_API_TOKEN }}
           DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY_INFRA }}
           TERRAFORM_PRE_RUN: |
+            unset TF_WORKSPACE
             curl -sfS https://dotenvx.sh/install.sh | sh
-            eval $(dotenvx get --format shell)
+            eval $(dotenvx get --format shell -f infra/cloudflare-access/.env)
