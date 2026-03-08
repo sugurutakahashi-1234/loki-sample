@@ -62,8 +62,11 @@ curl https://mise.run | sh
 ### プロジェクトセットアップ
 
 ```bash
-# ツールインストール（postinstall フックで bun install も自動実行）
+# ツールインストール
 mise install
+
+# パッケージインストール
+bun install
 
 # クリーンインストール + 全チェック実行（リント・型チェック・テスト・ビルド・VRT・E2E）
 bun run clean:setup
