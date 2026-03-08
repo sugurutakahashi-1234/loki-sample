@@ -93,6 +93,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TERRAFORM_CLOUD_TOKENS: app.terraform.io=${{ secrets.TF_API_TOKEN }}
           DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY_INFRA }}
+          # TERRAFORM_PRE_RUN は /github/workspace（リポジトリルート）で実行されるため、
+          # .env のパスを -f で明示する必要がある
+          # unset TF_WORKSPACE: dflook がデフォルトで TF_WORKSPACE=default を設定するが、
+          # cloud block の workspaces.name と競合するため解除する
           TERRAFORM_PRE_RUN: |
             unset TF_WORKSPACE
             curl -sfS https://dotenvx.sh/install.sh | sh
@@ -106,6 +110,10 @@ jobs:
         env:
           TERRAFORM_CLOUD_TOKENS: app.terraform.io=${{ secrets.TF_API_TOKEN }}
           DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY_INFRA }}
+          # TERRAFORM_PRE_RUN は /github/workspace（リポジトリルート）で実行されるため、
+          # .env のパスを -f で明示する必要がある
+          # unset TF_WORKSPACE: dflook がデフォルトで TF_WORKSPACE=default を設定するが、
+          # cloud block の workspaces.name と競合するため解除する
           TERRAFORM_PRE_RUN: |
             unset TF_WORKSPACE
             curl -sfS https://dotenvx.sh/install.sh | sh
