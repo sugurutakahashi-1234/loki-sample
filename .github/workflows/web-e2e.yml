@@ -5,11 +5,12 @@
 # required status checks と paths フィルタを両立できる。
 # Next.js アプリをビルドし、Playwright でページ遷移やレスポンシブ表示などを検証する。
 # PR 時はベースブランチからベースラインを動的生成し、reg-cli で差分レポートを生成する。
-name: E2E Tests
+name: 🧪 E2E Tests
 
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
@@ -25,6 +26,7 @@ env:
 
 jobs:
   changes:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:

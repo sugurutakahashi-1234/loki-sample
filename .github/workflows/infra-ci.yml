@@ -32,11 +32,12 @@
 #   hashicorp/setup-terraform + tfcmt に移行した。
 #   ref: https://github.com/dflook/terraform-github-actions/issues/295
 # ==============================================
-name: Infra CI
+name: 🏗️ Infra CI
 
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
@@ -45,6 +46,7 @@ permissions:
 
 jobs:
   changes:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -61,7 +63,7 @@ jobs:
 
   # ── 静的解析（Secrets 不要） ──
   lint:
-    name: Terraform Format / Validate / Lint
+    name: 🏗️ Terraform Format / Validate / Lint
     needs: changes
     if: github.event_name != 'pull_request' || needs.changes.outputs.should-run == 'true'
     runs-on: ubuntu-latest
@@ -95,7 +97,7 @@ jobs:
 
   # ── Plan + apply 漏れ検出（Secrets 必要） ──
   plan:
-    name: Terraform Plan
+    name: 🏗️ Terraform Plan
     needs: changes
     if: github.event_name == 'pull_request' && needs.changes.outputs.should-run == 'true'
     runs-on: ubuntu-latest
