@@ -6,9 +6,9 @@ node = "lts"
 bun = "latest"
 gh = "latest"
 terraform = "latest" # Cloudflare Access の IaC 管理
-tflint = "latest"    # Terraform リンター
-dotenvx = "latest"   # .env 暗号化管理
-gcloud = "latest"    # Google Cloud CLI（OAuth 設定等）
+tflint = "latest" # Terraform リンター
+dotenvx = "latest" # .env 暗号化管理
+gcloud = "latest" # Google Cloud CLI（OAuth 設定等）
 
 # mise install 完了後に依存関係を自動インストール
 # ツールが既にインストール済みの場合はスキップされるため、cd 時の auto_install では発火しない
