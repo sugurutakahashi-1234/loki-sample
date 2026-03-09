@@ -52,7 +52,7 @@
 # ==============================================
 
 terraform {
-  required_version = ">= 1.0"
+  required_version = ">= 1.14.6"
 
   cloud {
     organization = "sugurutakahashi-org"
