@@ -89,6 +89,11 @@
   commitMessageAction: "[Renovate] update",
   commitMessageTopic: "{{depName}}",
 
+  // main が更新されたら Renovate PR を常にリベースして追従する
+  // デフォルト（auto）ではコンフリクト時のみリベースするため、
+  // PR が "out-of-date with base branch" のまま放置されることがある
+  rebaseWhen: "behind-base-branch",
+
   // ブランチ設定
   branchPrefix: "feature/renovate-",
   baseBranchPatterns: ["$default"],
