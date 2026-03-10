@@ -253,9 +253,10 @@ CI では git worktree でベースブランチをチェックアウトし、同
 **なぜ Docker を使わないか:**
 Docker を使えばローカルと CI の環境を統一できますが、セットアップの複雑化・ビルド速度の低下・ローカル開発でも Docker 必須になるなどデメリットが大きく、現在の「ローカルは Mac 同士、CI は CI 同士」で比較する方式を採用しています。
 
-### Allure レポート
+### Allure レポート（ローカル専用）
 
 E2E テスト実行後に Allure レポートでリッチな結果を確認できます（ブラウザが自動で開きます）。
+CI では使用せず、ローカルでの確認用です。
 
 ```bash
 # E2E テストの Allure レポートを表示
@@ -274,7 +275,7 @@ PR 作成時（Ready for review）に GitHub Actions が自動実行されます
 - ☁️ **Storybook Cloudflare Deploy** (`storybook-cloudflare-deploy.yml`): main マージ時・PR 時に Storybook を Cloudflare Pages へデプロイ（PR 時は `packages/ui/` 変更時のみ、Cloudflare Access による認証付き）
 - 🧹 **Cleanup GitHub Pages** (`github-pages-cleanup.yml`): PR クローズ時に gh-pages の容量をチェックし、800MB 超過時に古いレポートを削除
 
-> **Note:** paths フィルタ付きワークフロー（VRT, E2E, Chromatic, Cloudflare, Infra CI）は全 PR で起動し、[dorny/paths-filter](https://github.com/dorny/paths-filter) でジョブレベル skip する設計です。ワークフローレベルの `paths:` だとチェックが「存在しない」状態になり required status checks でマージがブロックされますが、ジョブレベル skip は GitHub 上で pass 扱いになるためこの問題を回避できます。
+> **Note:** paths フィルタ付きワークフロー（VRT, E2E, Chromatic, Cloudflare, Infra CI）は全 PR で起動し、[AurorNZ/paths-filter](https://github.com/AurorNZ/paths-filter) でジョブレベル skip する設計です。ワークフローレベルの `paths:` だとチェックが「存在しない」状態になり required status checks でマージがブロックされますが、ジョブレベル skip は GitHub 上で pass 扱いになるためこの問題を回避できます。
 >
 > **Draft PR:** 全ワークフローは `types: [opened, synchronize, reopened, ready_for_review]` で Draft PR をスキップします。Draft から Ready に変更すると `ready_for_review` イベントで CI が起動します。
 
@@ -343,7 +344,6 @@ https://<owner>.github.io/<repo>/pr/<pr-number>/
 │       └── diff/          #   差分画像
 └── web-e2e/
     ├── html-report/       # E2E - Playwright HTML レポート
-    ├── allure-report/     # E2E - Allure レポート
     └── reg-report/        # E2E - reg-cli 差分レポート
         ├── report/        #   HTML レポート（index.html）
         ├── actual/        #   実際のスクリーンショット

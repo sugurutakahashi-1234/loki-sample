@@ -50,7 +50,7 @@ jobs:
     outputs:
       should-run: ${{ steps.filter.outputs.ui }}
     steps:
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
+      - uses: AurorNZ/paths-filter@c9dd42e99db87803313ff6f4b1150cc9f6c836af # v5
         id: filter
         if: github.event_name == 'pull_request'
         with:
