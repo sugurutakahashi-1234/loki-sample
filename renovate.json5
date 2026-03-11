@@ -18,21 +18,21 @@
   //   - helpers:pinGitHubActionDigests (GitHub Actions をダイジェストでピン留め)
   extends: ["config:best-practices"],
 
-  // 既存のキャレット (^) レンジを維持しつつバージョンを更新
-  rangeStrategy: "bump",
+  // レンジ内の更新でも package.json を更新する PR を作成する
+  // "bump" だとレンジ内（例: ^10.2.16 で 10.2.17）の場合 PR を作らないが、
+  // "replace" はレンジ互換でも ^10.2.16 → ^10.2.17 のように更新 PR を作る
+  rangeStrategy: "replace",
 
   timezone: "Asia/Tokyo",
   enabled: true,
 
   packageRules: [
-    // マイナー・パッチ・lockFileMaintenance・pinDigest は CI 通過後に自動マージ
+    // マイナー・パッチ・pinDigest は CI 通過後に自動マージ
     // ※ digest は自動マージ対象外にしている（下記参照）
     //
     // Renovate の update type:
     //   minor/patch         — 新バージョンのリリース（例: v6.1.0 → v6.2.0）
     //                         → SHA も新バージョンのものに更新される → 自動マージ OK
-    //   lockFileMaintenance — lock ファイルの再生成（package.json は変更なし）
-    //                         → 範囲内の最新バージョンに更新するだけ → 自動マージ OK
     //   pinDigest           — 初回のハッシュピン留め（config:best-practices が推奨）
     //                         → タグ → SHA 固定への変換で、実行内容は同一 → 自動マージ OK
     //   digest              — バージョン変更なしで同じタグの SHA だけ変わった場合
@@ -43,7 +43,7 @@
     //   pull_request トリガーはベースブランチ（main）のワークフローファイルで CI を実行するため、
     //   PR ブランチの改ざんされた SHA は CI では使われない。マージしない限り影響なし。
     {
-      matchUpdateTypes: ["minor", "patch", "lockFileMaintenance", "pinDigest"],
+      matchUpdateTypes: ["minor", "patch", "pinDigest"],
       automerge: true,
     },
 
@@ -106,6 +106,13 @@
   dependencyDashboardHeader: "This issue is automatically created by Renovate to track the status of all dependency updates. Check the status of each PR and merge as needed.",
   dependencyDashboardFooter: "For more details, see the renovate.json5 file in this repository.",
   dependencyDashboardLabels: [],
+
+  // lock file maintenance を無効化
+  // rangeStrategy: "replace" により個別パッケージごとに package.json を更新する PR が作られるため、
+  // lockfile だけを更新する lock file maintenance は不要
+  lockFileMaintenance: {
+    enabled: false,
+  },
 
   // 更新を無視する依存関係
   ignoreDeps: [],
