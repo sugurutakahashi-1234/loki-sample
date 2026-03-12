@@ -3,6 +3,21 @@
     "storybook-mcp": {
       "type": "http",
       "url": "http://localhost:6006/mcp"
+    },
+    "slack": {
+      "command": "dotenvx",
+      "args": [
+        "run",
+        "-f",
+        "mcp/.env",
+        "--",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-slack"
+      ],
+      "env": {
+        "SLACK_TEAM_ID": "T08LT7S9PBN"
+      }
     }
   }
 }

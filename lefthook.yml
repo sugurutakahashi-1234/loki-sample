@@ -183,20 +183,19 @@ pre-push:
     # ── Terraform ──
     # terraform apply 漏れ検出
     # infra/ の .tf 変更後に apply し忘れた状態での push を防止する
-    # .env.keys がなければ plan 実行不可のためブロック（infra/ を変更するなら復号キーが必要）
+    # ルートの .env.keys がなければ plan 実行不可のためブロック（infra/ を変更するなら復号キーが必要）
     - name: terraform-plan-check
       skip:
         # infra/ に変更がなければスキップ
         - run: git diff origin/main...HEAD --quiet -- 'infra/'
       timeout: 30s
       run: |
+        if [ ! -f ".env.keys" ]; then
+          echo "❌ ルートの .env.keys がないため apply 漏れを確認できません"
+          echo "👉 復号キーを管理者から取得してください"
+          exit 1
+        fi
         for dir in infra/*/; do
-          keys_file="${dir}.env.keys"
-          if [ ! -f "$keys_file" ]; then
-            echo "❌ $dir: .env.keys がないため apply 漏れを確認できません"
-            echo "👉 復号キーをパスワードマネージャー等から取得してください"
-            exit 1
-          fi
           [ -d "$dir.terraform" ] || (cd "$dir" && dotenvx run -- terraform init -input=false > /dev/null 2>&1)
           cd "$dir" && dotenvx run -- terraform plan -detailed-exitcode -no-color > /dev/null 2>&1
           exit_code=$?
