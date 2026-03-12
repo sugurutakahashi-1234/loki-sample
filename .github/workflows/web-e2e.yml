@@ -8,7 +8,7 @@
 #
 # 必要な設定:
 #   Secrets:
-#     DOTENV_PRIVATE_KEY_WEB — apps/web/.env.keys の DOTENV_PRIVATE_KEY
+#     DOTENV_PRIVATE_KEY — 全 .env ファイル共通の復号キー
 #       dotenvx で暗号化された .env を復号し、Next.js の環境変数（NEXT_PUBLIC_SENTRY_DSN 等）を注入する
 name: 🧪 E2E Tests
 
@@ -111,7 +111,7 @@ jobs:
       - name: Generate baselines from base branch
         if: github.event_name == 'pull_request'
         env:
-          DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY_WEB }}
+          DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY }}
         run: |
           BASE_REF="${{ github.event.pull_request.base.ref }}"
           git worktree add /tmp/baseline "origin/${BASE_REF}" --detach
@@ -130,7 +130,7 @@ jobs:
         run: bun run build
         working-directory: apps/web
         env:
-          DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY_WEB }}
+          DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY }}
 
       # Playwright テスト実行（ページ遷移・レスポンシブ検証）
       - name: Run Playwright tests

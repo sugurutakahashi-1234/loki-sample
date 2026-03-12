@@ -9,7 +9,7 @@
 #
 # 必要な設定:
 #   Secrets:
-#     DOTENV_PRIVATE_KEY_WEB — apps/web/.env.keys の DOTENV_PRIVATE_KEY
+#     DOTENV_PRIVATE_KEY — 全 .env ファイル共通の復号キー
 #       dotenvx で暗号化された .env を復号し、Next.js の環境変数（NEXT_PUBLIC_SENTRY_DSN 等）を注入する
 #       ※ 個別の Secrets 登録は不要。.env に変数を追加すれば CI にも自動反映される
 # ==============================================
@@ -68,5 +68,4 @@ jobs:
         run: bun run --parallel --no-exit-on-error lint syncpack typecheck knip test build
         env:
           # dotenvx が apps/web/.env を復号するために必要（Sentry DSN 等）
-          # 値は apps/web/.env.keys の DOTENV_PRIVATE_KEY を GitHub Secrets に登録する
-          DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY_WEB }}
+          DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY }}

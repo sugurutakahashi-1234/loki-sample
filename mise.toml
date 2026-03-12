@@ -1,6 +1,11 @@
 [settings]
 experimental = true
 
+# .env.keys から DOTENV_PRIVATE_KEY を環境変数にセット
+# dotenvx が自動的にこの環境変数を使って復号するため、-fk オプション不要
+[env]
+_.file = '.env.keys'
+
 [tools]
 node = "lts"
 bun = "latest"
@@ -14,15 +19,21 @@ gcloud = "latest" # Google Cloud CLI（OAuth 設定等）
 # ツールが既にインストール済みの場合はスキップされるため、cd 時の auto_install では発火しない
 [hooks]
 postinstall = """
-# dotenvx で暗号化された .env ファイルの復号キー（.env.keys）が揃っているかチェック
-# .env に DOTENV_PUBLIC_KEY が含まれていれば暗号化済みと判断し、対応する .env.keys の存在を確認する
-# .env.keys がなければ警告を表示（terraform plan 等が失敗するため）
-for env_file in $(git ls-files '*.env' --ignored --exclude-standard 2>/dev/null; git ls-files '*.env'); do
-  keys_file="${env_file%.env}.env.keys"
-  if grep -q 'DOTENV_PUBLIC_KEY' "$env_file" 2>/dev/null && [ ! -f "$keys_file" ]; then
+# ルートの .env.keys が存在するかチェック
+# 暗号化された .env ファイルの復号に必要（mise の [env] _.file で自動読み込み）
+if [ ! -f ".env.keys" ]; then
+  has_encrypted=0
+  for env_file in $(git ls-files '*.env'); do
+    if grep -q 'DOTENV_PUBLIC_KEY' "$env_file" 2>/dev/null; then
+      has_encrypted=1
+      break
+    fi
+  done
+  if [ "$has_encrypted" = "1" ]; then
     echo ""
-    echo "⚠️  $keys_file が見つかりません"
-    echo "   復号キーが必要です。詳細: $env_file"
+    echo "⚠️  ルートの .env.keys が見つかりません"
+    echo "   暗号化された .env ファイルの復号に必要です"
+    echo "👉 管理者から .env.keys を取得してルートに配置してください"
   fi
-done
+fi
 """

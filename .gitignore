@@ -29,6 +29,7 @@ coverage/
 .env
 !infra/**/.env
 !apps/web/.env
+!mcp/.env
 .env.local
 .env.*.local
 .env.sentry-build-plugin

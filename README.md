@@ -33,6 +33,7 @@ storybook-vrt-sample/
 │   └── web/                  # Next.js アプリ + E2E テスト
 ├── packages/
 │   └── ui/                   # 共有 UI コンポーネント + Storybook + VRT
+├── mcp/                      # MCP サーバーのシークレット管理
 ├── infra/
 │   ├── cloudflare-access/    # Cloudflare Access (Zero Trust) の Terraform 管理
 │   └── sentry/               # Sentry エラー監視の Terraform 管理
@@ -90,17 +91,15 @@ bun run clean:setup
    ```
    ブラウザが開くので、Terraform Cloud で認証する。トークンが `~/.terraform.d/credentials.tfrc.json` に保存される。
 4. **`.env.keys` の取得**
-   - 以下のファイルをパスワードマネージャーから取得して配置する
-     - `apps/web/.env.keys` — Next.js アプリの環境変数復号キー（Sentry DSN 等）
-     - `infra/cloudflare-access/.env.keys` — Cloudflare Access Terraform の環境変数復号キー
-     - `infra/sentry/.env.keys` — Sentry Terraform の環境変数復号キー
-   - これらのファイルには dotenvx の復号キー（`DOTENV_PRIVATE_KEY`）が含まれる
+   - ルートの `.env.keys` を管理者から取得して配置する（中身は `DOTENV_PRIVATE_KEY=xxx` の1行のみ）
 5. **動作確認**
 
    ```bash
+   # MCP サーバーの環境変数が復号できることを確認
+   cd mcp && dotenvx get | jq .
+
    # Next.js アプリの環境変数が復号できることを確認
-   cd apps/web
-   dotenvx get | jq .
+   cd apps/web && dotenvx get | jq .
 
    # Terraform の環境変数が復号できることを確認
    cd infra/cloudflare-access
@@ -112,7 +111,7 @@ bun run clean:setup
    dotenvx run -- terraform plan
    ```
 
-   Next.js 側は変数が表示されれば OK。Terraform 側は `No changes.` と表示されれば正常にセットアップ完了。
+   MCP・Next.js 側は変数が表示されれば OK。Terraform 側は `No changes.` と表示されれば正常にセットアップ完了。
 
 ## 開発ワークフロー
 
@@ -395,7 +394,7 @@ dotenvx run -- terraform apply
 #### シークレット管理（dotenvx）
 
 環境変数は `infra/cloudflare-access/.env` に dotenvx で暗号化して保存しています。
-復号には `.env.keys` ファイルが必要です（パスワードマネージャー等で共有）。
+復号にはルートの `.env.keys` が必要です（管理者から安全な方法で共有）。
 
 ```bash
 cd infra/cloudflare-access
@@ -497,26 +496,25 @@ dotenvx run -- terraform apply
 
 ### GitHub Secrets（Settings > Secrets and variables > Actions）
 
-| Secret                      | 用途                           | 使用ワークフロー                  | 取得先                                                        |
-| --------------------------- | ------------------------------ | --------------------------------- | ------------------------------------------------------------- |
-| `CHROMATIC_PROJECT_TOKEN`   | Chromatic デプロイ             | `storybook-chromatic-deploy.yml`  | [Chromatic](https://www.chromatic.com/) > Project > Configure |
-| `CLOUDFLARE_API_TOKEN`      | Cloudflare Pages デプロイ      | `storybook-cloudflare-deploy.yml` | Cloudflare > My Profile > API Tokens（権限: Pages Edit）      |
-| `DOTENV_PRIVATE_KEY_INFRA`  | Cloudflare Access 用 .env 復号 | `infra-ci.yml`                    | `infra/cloudflare-access/.env.keys` の `DOTENV_PRIVATE_KEY`   |
-| `DOTENV_PRIVATE_KEY_SENTRY` | Sentry 用 .env 復号            | `infra-ci.yml`                    | `infra/sentry/.env.keys` の `DOTENV_PRIVATE_KEY`              |
-| `DOTENV_PRIVATE_KEY_WEB`    | Next.js 用 .env 復号           | `ci.yml`, `web-e2e.yml`           | `apps/web/.env.keys` の `DOTENV_PRIVATE_KEY`                  |
-| `TF_API_TOKEN`              | Terraform Cloud API トークン   | `infra-ci.yml`                    | Terraform Cloud > Organization Settings > Teams > Team Token  |
-
-### GitHub Variables（Settings > Secrets and variables > Actions）
-
-| Variable                | 用途                            | 使用ワークフロー                  |
-| ----------------------- | ------------------------------- | --------------------------------- |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare アカウント識別       | `storybook-cloudflare-deploy.yml` |
-| `CF_PAGES_PROJECT_NAME` | Cloudflare Pages プロジェクト名 | `storybook-cloudflare-deploy.yml` |
+| Secret                    | 用途                           | 使用ワークフロー                        | 取得先                                                        |
+| ------------------------- | ------------------------------ | --------------------------------------- | ------------------------------------------------------------- |
+| `CHROMATIC_PROJECT_TOKEN` | Chromatic デプロイ             | `storybook-chromatic-deploy.yml`        | [Chromatic](https://www.chromatic.com/) > Project > Configure |
+| `CLOUDFLARE_API_TOKEN`    | Cloudflare Pages デプロイ      | `storybook-cloudflare-deploy.yml`       | Cloudflare > My Profile > API Tokens（権限: Pages Edit）      |
+| `DOTENV_PRIVATE_KEY`      | 全 .env ファイル共通の復号キー | `ci.yml`, `web-e2e.yml`, `infra-ci.yml` | ルートの `.env.keys` の `DOTENV_PRIVATE_KEY`                  |
+| `TF_API_TOKEN`            | Terraform Cloud API トークン   | `infra-ci.yml`                          | Terraform Cloud > Organization Settings > Teams > Team Token  |
 
 ### dotenvx 暗号化
 
 環境変数を dotenvx で暗号化してリポジトリにコミットしています。
-復号には各ディレクトリの `.env.keys` が必要です（パスワードマネージャー等で共有）。
+復号にはルートの `.env.keys` が必要です（管理者から安全な方法で共有）。
+`mise.toml` の `[env] _.file` で `.env.keys` を自動読み込みし、`DOTENV_PRIVATE_KEY` 環境変数をセットします。
+これにより dotenvx コマンドは追加オプションなしで復号できます。
+
+**新しい暗号化環境を追加する手順:**
+
+1. 新ディレクトリで `.env` を作成
+2. `dotenvx encrypt -fk ../../.env.keys` で暗号化（ルートの `.env.keys` にキーが追加される）
+3. `.gitignore` に `!<dir>/.env` を追加（暗号化済みファイルをコミットするため）
 
 #### `apps/web/.env`（Next.js アプリ）
 
@@ -554,5 +552,24 @@ dotenvx get | jq .
 | 変数                | 用途                      | 取得先                                                                                                                                 |
 | ------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `SENTRY_AUTH_TOKEN` | Sentry Terraform Provider | [Sentry Auth Tokens](https://suguru-takahashi.sentry.io/settings/auth-tokens/)（権限: project:write, organization:read, alerts:write） |
+
+#### `mcp/.env`（MCP サーバー）
+
+| 変数              | 用途                  | 取得先                                                                                                                                           |
+| ----------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SLACK_BOT_TOKEN` | Slack MCP Server 認証 | [Slack API](https://api.slack.com/apps) > Bot User OAuth Token（権限: channels:history, channels:read, chat:write, reactions:write, users:read） |
+
+`.mcp.json` の Slack MCP サーバーは `dotenvx run -f mcp/.env --` でラップされており、起動時に `mcp/.env` を自動復号してトークンを注入します。
+
+```bash
+cd mcp
+
+# 復号された全変数を確認
+dotenvx get | jq .
+
+# 新しい変数を追加する場合
+# 1. .env に平文で追加
+# 2. dotenvx encrypt で暗号化
+```
 
 各ワークフローのヘッダーコメントにも必要な Secrets/Variables の説明があります。

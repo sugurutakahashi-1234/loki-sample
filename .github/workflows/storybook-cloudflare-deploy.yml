@@ -14,9 +14,6 @@
 #     CLOUDFLARE_API_TOKEN    — Cloudflare API Token「GitHub Actions - Cloudflare Pages」
 #       権限: Cloudflare Pages: Edit
 #       ※ Terraform 用トークン（infra/cloudflare-access/.env で管理）とは別トークン
-#   Variables:
-#     CLOUDFLARE_ACCOUNT_ID   — Cloudflare ダッシュボード > Workers & Pages > Account ID（`bunx wrangler whoami` でも確認可）
-#     CF_PAGES_PROJECT_NAME   — Cloudflare Pages プロジェクト名（`<project-name>.pages.dev` のサブドメインになる）
 #   初回セットアップ:
 #     bunx wrangler pages project create <project-name> --production-branch main
 #   Cloudflare Access: Zero Trust > Access > Applications で認証ポリシーを設定
@@ -95,8 +92,10 @@ jobs:
         uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy packages/ui/storybook-static --project-name=${{ vars.CF_PAGES_PROJECT_NAME }} --branch=${{ github.head_ref || 'main' }}
+          # Account ID: Cloudflare ダッシュボード > Workers & Pages > Account ID（`bunx wrangler whoami` でも確認可）
+          accountId: 95d6c4c8536abbe739beadf65c380ae4
+          # project-name: Cloudflare Pages プロジェクト名（`<project-name>.pages.dev` のサブドメインになる）
+          command: pages deploy packages/ui/storybook-static --project-name=storybook-vrt-sample --branch=${{ github.head_ref || 'main' }}
 
       # ────────────────────────────────────────
       # レポート
@@ -109,7 +108,7 @@ jobs:
           echo "| Key | URL |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|-----|" >> $GITHUB_STEP_SUMMARY
           echo "| Storybook | ${{ steps.deploy.outputs.deployment-url }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Dashboard | https://dash.cloudflare.com/${{ vars.CLOUDFLARE_ACCOUNT_ID }}/pages/view/${{ vars.CF_PAGES_PROJECT_NAME }}/${{ steps.deploy.outputs.pages-deployment-id }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dashboard | https://dash.cloudflare.com/95d6c4c8536abbe739beadf65c380ae4/pages/view/storybook-vrt-sample/${{ steps.deploy.outputs.pages-deployment-id }} |" >> $GITHUB_STEP_SUMMARY
 
       # sticky-pull-request-comment: 同じ header のコメントがあれば更新、なければ新規作成
       - name: Comment PR with Storybook link
@@ -123,4 +122,4 @@ jobs:
             | Key | URL |
             |-----|-----|
             | Storybook | ${{ steps.deploy.outputs.deployment-url }} |
-            | Dashboard | https://dash.cloudflare.com/${{ vars.CLOUDFLARE_ACCOUNT_ID }}/pages/view/${{ vars.CF_PAGES_PROJECT_NAME }}/${{ steps.deploy.outputs.pages-deployment-id }} |
+            | Dashboard | https://dash.cloudflare.com/95d6c4c8536abbe739beadf65c380ae4/pages/view/storybook-vrt-sample/${{ steps.deploy.outputs.pages-deployment-id }} |
