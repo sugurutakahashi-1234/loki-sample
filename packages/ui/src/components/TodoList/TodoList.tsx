@@ -1,30 +1,29 @@
 /**
  * TodoList コンポーネント
  *
- * API サーバー（apps/api）から TODO を取得・作成・トグルするサンプルコンポーネント。
- * Storybook では msw-storybook-addon 経由で MSW がリクエストをインターセプトし、
- * モックデータを返すため、API サーバーの起動は不要。
+ * oRPC クライアント経由で API サーバーと通信する TODO 管理コンポーネント。
+ * apiBaseUrl を props で受け取ることで、環境ごとに接続先を切り替えられる。
  *
- * 本番環境での使用は想定していない（API クライアントの抽象化、エラーハンドリング等が未実装）。
+ * - ローカル開発: デフォルトの localhost:3001
+ * - Storybook: MSW がインターセプトするため URL は問わない
+ * - ステージング/本番: apps/web から環境変数で注入
  */
 import type { Todo } from "@storybook-vrt-sample/api-contract";
-import { useCallback, useEffect, useState } from "react";
-
-/** API サーバーのベース URL（apps/api のデフォルトポート） */
-const API_BASE = "http://localhost:3001/api";
+import { createTodoApiClient } from "@ui/api/client";
+import type { TodoApiClient } from "@ui/api/client";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 /** TODO の CRUD 操作をまとめたカスタムフック */
-const useTodos = () => {
+const useTodos = (client: TodoApiClient) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchTodos = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`${API_BASE}/todos`);
-    const data = (await res.json()) as Todo[];
+    const data = await client.todo.list();
     setTodos(data);
     setLoading(false);
-  }, []);
+  }, [client]);
 
   useEffect(() => {
     const load = async () => {
@@ -36,22 +35,18 @@ const useTodos = () => {
 
   const toggle = useCallback(
     async (id: string) => {
-      await fetch(`${API_BASE}/todos/${id}`, { method: "PATCH" });
+      await client.todo.toggle({ id });
       await fetchTodos();
     },
-    [fetchTodos]
+    [client, fetchTodos]
   );
 
   const create = useCallback(
     async (title: string) => {
-      await fetch(`${API_BASE}/todos`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
-      });
+      await client.todo.create({ title });
       await fetchTodos();
     },
-    [fetchTodos]
+    [client, fetchTodos]
   );
 
   return { todos, loading, toggle, create };
@@ -92,8 +87,9 @@ const TodoItem = ({
   );
 };
 
-export const TodoList = () => {
-  const { todos, loading, toggle, create } = useTodos();
+export const TodoList = ({ apiBaseUrl }: { apiBaseUrl?: string }) => {
+  const client = useMemo(() => createTodoApiClient(apiBaseUrl), [apiBaseUrl]);
+  const { todos, loading, toggle, create } = useTodos(client);
   const [newTitle, setNewTitle] = useState("");
 
   const handleCreate = useCallback(async () => {
