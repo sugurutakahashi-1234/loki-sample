@@ -1,0 +1,28 @@
+# ==============================================
+# Cloudflare Workers 設定（API サーバー）
+# ==============================================
+# oRPC + Hono API を Cloudflare Workers にデプロイする。
+#
+# デプロイコマンド:
+#   staging:    bunx wrangler deploy --env staging
+#   production: bunx wrangler deploy --env production
+#
+# ローカル開発は引き続き `bun run dev`（Bun.serve）を使用する。
+# wrangler dev は使わない（Bun のホットリロードの方が高速）。
+#
+# 注意: インメモリストレージのため、Workers のリクエスト間でデータは共有されない。
+# Workers はリクエストごとに isolate が起動するため、TODO は永続化されない。
+# 永続化が必要な場合は D1 や KV を検討すること。
+# ==============================================
+
+name = "storybook-vrt-sample-api"
+main = "src/worker.ts"
+compatibility_date = "2025-01-01"
+
+# staging 環境
+[env.staging]
+name = "storybook-vrt-sample-api-staging"
+
+# production 環境
+[env.production]
+name = "storybook-vrt-sample-api-production"
