@@ -20,16 +20,14 @@
  */
 import { contract } from "@storybook-vrt-sample/api-contract";
 import type { Todo } from "@storybook-vrt-sample/api-contract";
+import { DEFAULT_API_BASE_URL } from "@ui/api/client";
 import type { HttpHandler } from "msw";
 import { createMSWUtilities } from "orpc-msw";
-
-/** API サーバーのベース URL（apps/api のデフォルトポート） */
-const API_BASE = "http://localhost:3001/api";
 
 /** コントラクトから MSW ユーティリティを生成 */
 const msw = createMSWUtilities({
   router: contract,
-  baseUrl: API_BASE,
+  baseUrl: DEFAULT_API_BASE_URL,
 });
 
 export const defaultTodos: Todo[] = [
