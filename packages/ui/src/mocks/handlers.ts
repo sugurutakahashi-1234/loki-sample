@@ -1,23 +1,36 @@
 /**
- * MSW ハンドラー定義
+ * MSW ハンドラー定義（orpc-msw 版）
  *
- * Storybook のストーリーで API レスポンスをモックするための MSW ハンドラー。
- * msw-storybook-addon の parameters.msw.handlers に渡して使用する。
- *
+ * orpc-msw の createMSWUtilities() を使い、コントラクトから型安全な MSW ハンドラーを生成する。
  * createTodoHandlers() にモックデータを渡すことで、ストーリーごとに
  * 異なる API レスポンスを返すことができる（空リスト、全完了済み等）。
  *
- * 設計判断:
- * - orpc-msw（v0.1.0）を使えばコントラクトから MSW ハンドラーを自動生成できるが、
- *   v0.1.0 と初期段階のため安定性を優先して手動定義を選択した（未検証）
- * - エンドポイントが3つと少なく手動でも負担が小さいため、現時点では十分
- * - コントラクトの Todo 型を直接参照することで、スキーマ変更時に型エラーで検知可能
+ * orpc-msw を使うメリット（手動 MSW ハンドラーとの比較）:
+ * - パスの手書きが不要: コントラクトの path 定義から MSW ルーティングを自動生成する
+ *   （例: コントラクトの `/todos/{id}` → MSW の `/todos/:id` への変換も自動）
+ * - input の型推論: ハンドラーの引数 ({ input }) がコントラクトの入力スキーマから推論される
+ * - output の型チェック: 返り値がコントラクトの出力スキーマと一致しないと型エラーになる
+ * - コントラクト変更への追従: パス変更・フィールド追加時にコンパイルエラーで検知できる
+ *
+ * デメリット・注意点:
+ * - orpc-msw は v0.1.0（最終更新 2026-01-20）で更新頻度が低い
+ * - peer dependency に @orpc/contract + @orpc/openapi-client が追加で必要
+ * - 戻り値の型推論で HttpHandler の明示的アノテーションが必要（tsgo の型推論制約）
+ * - エラーレスポンス等のカスタムステータスコードは Response オブジェクトを直接返す必要がある
  */
+import { contract } from "@storybook-vrt-sample/api-contract";
 import type { Todo } from "@storybook-vrt-sample/api-contract";
-import { http, HttpResponse } from "msw";
+import type { HttpHandler } from "msw";
+import { createMSWUtilities } from "orpc-msw";
 
 /** API サーバーのベース URL（apps/api のデフォルトポート） */
 const API_BASE = "http://localhost:3001/api";
+
+/** コントラクトから MSW ユーティリティを生成 */
+const msw = createMSWUtilities({
+  router: contract,
+  baseUrl: API_BASE,
+});
 
 export const defaultTodos: Todo[] = [
   { id: "1", title: "Buy groceries", completed: false },
@@ -25,22 +38,20 @@ export const defaultTodos: Todo[] = [
   { id: "3", title: "Review PR", completed: false },
 ];
 
-export const createTodoHandlers = (todos: Todo[] = defaultTodos) => [
-  http.get(`${API_BASE}/todos`, () => HttpResponse.json(todos)),
-  http.post(`${API_BASE}/todos`, async ({ request }) => {
-    const body = (await request.json()) as { title: string };
-    const newTodo: Todo = {
-      id: crypto.randomUUID(),
-      title: body.title,
-      completed: false,
-    };
-    return HttpResponse.json(newTodo, { status: 201 });
-  }),
-  http.patch(`${API_BASE}/todos/:id`, ({ params }) => {
-    const todo = todos.find((t) => t.id === params["id"]);
+export const createTodoHandlers = (
+  todos: Todo[] = defaultTodos
+): HttpHandler[] => [
+  msw.todo.list.handler(() => todos),
+  msw.todo.create.handler(({ input }) => ({
+    id: crypto.randomUUID(),
+    title: input.title,
+    completed: false,
+  })),
+  msw.todo.toggle.handler(({ input }) => {
+    const todo = todos.find((t) => t.id === input.id);
     if (!todo) {
-      return HttpResponse.json({ message: "Not found" }, { status: 404 });
+      return Response.json({ message: "Not found" }, { status: 404 });
     }
-    return HttpResponse.json({ ...todo, completed: !todo.completed });
+    return { ...todo, completed: !todo.completed };
   }),
 ];
