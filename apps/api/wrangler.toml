@@ -12,10 +12,27 @@
 #   bun run dev:bun   → Bun.serve（D1 なし、インメモリフォールバック）
 #
 # D1 データベースで TODO を永続化する。
-# マイグレーション生成: bunx drizzle-kit generate
-# マイグレーション適用:
-#   ローカル: bunx wrangler d1 migrations apply storybook-vrt-sample-db --local
-#   リモート: bunx wrangler d1 migrations apply storybook-vrt-sample-db --remote
+#
+# === マイグレーション運用フロー ===
+#
+# 1. スキーマを変更する（src/db/schema.ts）
+# 2. マイグレーション SQL を生成:
+#      bunx drizzle-kit generate
+# 3. ローカルで動作確認:
+#      bunx wrangler d1 migrations apply storybook-vrt-sample-db --local
+#      bun run dev  # wrangler dev で動作確認
+# 4. staging にマイグレーション適用 → デプロイ:
+#      bunx wrangler d1 migrations apply storybook-vrt-sample-db --remote --env staging
+#      bun run deploy:staging
+# 5. staging で動作確認後、production にマイグレーション適用 → デプロイ:
+#      bunx wrangler d1 migrations apply storybook-vrt-sample-db --remote --env production
+#      bun run deploy:production
+#
+# 注意:
+# - マイグレーションは必ず staging → production の順で適用する
+# - ロールバック機能はない。破壊的変更は新しいマイグレーションで対応する
+# - 現在は staging / production で同じ D1 データベースを共有している
+#   TODO: 環境ごとに別の D1 データベースを作成して分離する
 # ==============================================
 
 name = "storybook-vrt-sample-api"
