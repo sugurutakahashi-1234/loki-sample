@@ -10,7 +10,8 @@ const config: KnipConfig = {
     },
     "apps/web": {
       // bun test のテストファイルをエントリーポイントとして認識させる
-      entry: ["app/**/*.test.ts!"],
+      // open-next.config.ts は opennextjs-cloudflare build 時に読み込まれる設定ファイル
+      entry: ["app/**/*.test.ts!", "open-next.config.ts!"],
     },
     "packages/ui": {
       entry: ["src/**/*.test.ts!"],
