@@ -153,10 +153,14 @@ pre-push:
       run: bun run test || (echo "" && echo "❌ ユニットテストが失敗しました" && echo "👉 bun run test で詳細を確認" && exit 1)
 
     # ── 統合 ──
-    # Next.js ビルド
+    # OpenNext ビルド（Next.js ビルド + Cloudflare Workers 変換）
+    # build:cf（opennextjs-cloudflare build）は内部で next build を呼んでから
+    # OpenNext 変換を行う。Next.js ビルドと Workers 変換を一度に検証できる。
+    # ルートの bun run build（= next build のみ）とは .next/lock が競合するため、
+    # build:cf に統一して並列実行の問題を回避する。
     - name: build
-      timeout: 20s
-      run: bun run build || (echo "" && echo "❌ ビルドに失敗しました" && echo "👉 bun run build で詳細を確認" && exit 1)
+      timeout: 30s
+      run: cd apps/web && bun run build:cf || (echo "" && echo "❌ ビルドに失敗しました" && echo "👉 cd apps/web && bun run build:cf で詳細を確認" && exit 1)
 
     # ── ビジュアルテスト ──
     # Storybook テスト群（Vitest browser mode）
