@@ -85,7 +85,7 @@ jobs:
       # OpenNext で Next.js を Cloudflare Workers 用にビルド
       - name: Build with OpenNext
         working-directory: apps/web
-        run: bunx opennextjs-cloudflare build
+        run: bun run build:cf
 
       # main push → production（wrangler deploy）、PR → preview（wrangler versions upload）
       - name: Deploy to Cloudflare Workers
@@ -95,7 +95,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: 95d6c4c8536abbe739beadf65c380ae4
           workingDirectory: apps/web
-          packageManager: bunx
+          packageManager: bun
           command: deploy
 
       # ────────────────────────────────────────
