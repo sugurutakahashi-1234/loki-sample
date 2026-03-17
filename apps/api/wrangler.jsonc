@@ -1,0 +1,87 @@
+// ==============================================
+// Cloudflare Workers 設定（API サーバー）
+// ==============================================
+// oRPC + Hono API を Cloudflare Workers にデプロイする。
+//
+// デプロイコマンド:
+//   staging:    bunx wrangler deploy --env staging
+//   production: bunx wrangler deploy --env production
+//
+// ローカル開発:
+//   bun run dev       → wrangler dev（D1 ローカル SQLite を使用）
+//   bun run dev:bun   → Bun.serve（D1 なし、インメモリフォールバック）
+//
+// D1 データベースで TODO を永続化する。
+//
+// === マイグレーション運用フロー ===
+//
+// 1. スキーマを変更する（src/db/schema.ts）
+// 2. マイグレーション SQL を生成:
+//      bunx drizzle-kit generate
+// 3. ローカルで動作確認:
+//      bunx wrangler d1 migrations apply storybook-vrt-sample-db --local
+//      bun run dev  # wrangler dev で動作確認
+// 4. staging にマイグレーション適用 → デプロイ:
+//      bunx wrangler d1 migrations apply storybook-vrt-sample-db-staging --remote --env staging
+//      bun run deploy:staging
+// 5. staging で動作確認後、production にマイグレーション適用 → デプロイ:
+//      bunx wrangler d1 migrations apply storybook-vrt-sample-db-production --remote --env production
+//      bun run deploy:production
+//
+// 注意:
+// - マイグレーションは必ず staging → production の順で適用する
+// - ロールバック機能はない。破壊的変更は新しいマイグレーションで対応する
+//
+// === D1 データベースの環境分離 ===
+//
+// 各環境で独立した D1 データベースを使用する:
+//   ローカル:     storybook-vrt-sample-db（トップレベルの設定。wrangler dev で使用）
+//   staging:      storybook-vrt-sample-db-staging
+//   production:   storybook-vrt-sample-db-production
+//
+// これにより staging でのマイグレーション検証が production に影響しない。
+// ==============================================
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "storybook-vrt-sample-api",
+  "main": "src/worker.ts",
+  "compatibility_date": "2025-01-01",
+
+  // D1 データベースバインディング（ローカル開発用）
+  // wrangler dev で使用される。staging / production とは別の DB。
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "storybook-vrt-sample-db",
+      "database_id": "b63022aa-a134-4405-ac8d-dec45b097e73",
+      "migrations_dir": "drizzle",
+    },
+  ],
+
+  "env": {
+    // staging 環境（独立した D1 データベース）
+    "staging": {
+      "name": "storybook-vrt-sample-api-staging",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "storybook-vrt-sample-db-staging",
+          "database_id": "20698d50-11f5-497a-8451-ae0f493f7b9f",
+          "migrations_dir": "drizzle",
+        },
+      ],
+    },
+    // production 環境（独立した D1 データベース）
+    "production": {
+      "name": "storybook-vrt-sample-api-production",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "storybook-vrt-sample-db-production",
+          "database_id": "8ee524ca-3c07-4cab-89bc-f38a194ec642",
+          "migrations_dir": "drizzle",
+        },
+      ],
+    },
+  },
+}

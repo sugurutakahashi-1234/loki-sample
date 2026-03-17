@@ -4,7 +4,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "explicit"
   },
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
   "npm.packageManager": "bun",
   "npm.scriptRunner": "bun",
   "npm.scriptExplorerAction": "run",
@@ -17,6 +17,10 @@
     {
       "fileMatch": [".oxlintrc.json"],
       "url": "./node_modules/oxlint/configuration_schema.json"
+    },
+    {
+      "fileMatch": ["**/wrangler.jsonc"],
+      "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json"
     }
   ]
 }

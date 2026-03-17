@@ -48,6 +48,12 @@ pre-commit:
     # main ブランチへの直接コミットを禁止
     - name: protect-main
       run: '[ "$(git branch --show-current)" = "main" ] && echo "❌ main ブランチへの直接コミットは禁止です" && exit 1 || exit 0'
+    # package.json 変更時に bun install を自動実行し bun.lock を同期
+    # syncpack fix 等でバージョンを変えた後に bun install を忘れると CI で lockfile エラーになるため、
+    # コミット時に自動で同期してステージに追加する
+    - name: sync-lockfile
+      run: bun install && git add bun.lock
+      glob: "**/package.json"
     # Oxlint によるリント自動修正
     # oxlint は JS/TS のみ対応のため、JSON/CSS は対象外
     - name: oxlint-fix
@@ -177,12 +183,16 @@ pre-push:
       run: CACHE_DIR=packages/ui/node_modules/.cache/sb-snapshot bun run storybook:snapshot && git diff --quiet packages/ui/vrt/screenshots/ && ! git ls-files --others --exclude-standard packages/ui/vrt/screenshots/ | grep -q . || (echo "" && echo "❌ VRT スクリーンショットに差分があります" && echo "👉 bun run storybook:snapshot && git add packages/ui/vrt/screenshots/ && git commit" && exit 1)
     # E2E テスト（Playwright / Next.js dev サーバーを自動起動して実行）
     # スクリーンショットに差分があれば push を失敗させる（コミットし忘れ防止）
+    # ポート 3000 が使用中だと dev サーバーが別ポートで起動し Playwright が接続できずタイムアウトするため、
+    # テスト前にポート 3000 を占有しているプロセスを強制終了する
     - name: e2e-test
       skip:
         # packages/ui/、apps/web/、bun.lock のすべてに変更がなければスキップ
         - run: git diff origin/main...HEAD --quiet -- 'packages/ui/' 'apps/web/' 'bun.lock'
       timeout: 20s
-      run: bun run e2e && git diff --quiet apps/web/e2e/screenshots/ && ! git ls-files --others --exclude-standard apps/web/e2e/screenshots/ | grep -q . || (echo "" && echo "❌ E2E スクリーンショットに差分があります" && echo "👉 bun run e2e && git add apps/web/e2e/screenshots/ && git commit" && exit 1)
+      run: |
+        lsof -ti :3000 | xargs kill -9 2>/dev/null || true
+        bun run e2e && git diff --quiet apps/web/e2e/screenshots/ && ! git ls-files --others --exclude-standard apps/web/e2e/screenshots/ | grep -q . || (echo "" && echo "❌ E2E スクリーンショットに差分があります" && echo "👉 bun run e2e && git add apps/web/e2e/screenshots/ && git commit" && exit 1)
 
     # ── Terraform ──
     # terraform apply 漏れ検出

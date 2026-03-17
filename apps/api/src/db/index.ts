@@ -17,7 +17,7 @@ import * as schema from "./schema.js";
 /**
  * D1 バインディングから Drizzle インスタンスを生成する
  *
- * @param d1 - Cloudflare D1 データベースバインディング（wrangler.toml で設定）
+ * @param d1 - Cloudflare D1 データベースバインディング（wrangler.jsonc で設定）
  * @returns Drizzle ORM インスタンス（型安全なクエリビルダー）
  */
 export const createDb = (d1: D1Database) => drizzle(d1, { schema });

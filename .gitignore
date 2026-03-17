@@ -68,6 +68,9 @@ Thumbs.db
 # Wrangler（Cloudflare Workers ローカル開発の一時ファイル）
 .wrangler/
 
+# OpenNext（Next.js → Cloudflare Workers ビルド出力）
+.open-next/
+
 # Terraform
 **/.terraform/
 *.tfstate
