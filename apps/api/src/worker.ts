@@ -2,7 +2,7 @@
  * Cloudflare Workers のエントリポイント
  *
  * Hono の app を default export するだけで CF Workers の fetch ハンドラーとして動作する。
- * wrangler.toml の main がこのファイルを指す。
+ * wrangler.jsonc の main がこのファイルを指す。
  */
 import { app } from "./app.js";
 

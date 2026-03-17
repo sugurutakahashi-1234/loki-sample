@@ -10,7 +10,7 @@
  *   2. `bunx wrangler d1 migrations apply` → 各環境の D1 に適用
  *
  * 適用順序: ローカル → staging → production
- * 詳細な手順は wrangler.toml のヘッダーコメントを参照。
+ * 詳細な手順は wrangler.jsonc のヘッダーコメントを参照。
  *
  * ## driver: "d1-http" を省略している理由
  *

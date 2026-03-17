@@ -30,7 +30,7 @@ import { createRouter } from "./router.js";
 /**
  * Cloudflare Workers のバインディング型定義
  *
- * wrangler.toml の [[d1_databases]] binding = "DB" に対応する。
+ * wrangler.jsonc の [[d1_databases]] binding = "DB" に対応する。
  * Bun ローカル開発では D1 バインディングが存在しないため optional にしている。
  */
 export const app = new Hono<{ Bindings: { DB?: D1Database } }>();

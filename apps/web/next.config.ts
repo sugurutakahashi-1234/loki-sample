@@ -3,9 +3,15 @@
  *
  * Next.js アプリケーションのビルド・ランタイム設定を定義する。
  * withSentryConfig でラップすることで、ビルド時のソースマップアップロード等を自動化する。
+ *
+ * initOpenNextCloudflareForDev() は Next.js dev サーバーで Cloudflare バインディング
+ * （D1, R2, KV 等）を利用可能にする。本番ビルド時は何もしない。
  */
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
+
+initOpenNextCloudflareForDev();
 
 const nextConfig: NextConfig = {
   // モノレポ内の内部パッケージをトランスパイル対象に含める
