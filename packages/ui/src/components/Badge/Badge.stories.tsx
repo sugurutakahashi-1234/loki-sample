@@ -1,15 +1,16 @@
+import { expect, within } from "storybook/test";
+
 /**
  * Badge コンポーネントの Storybook ストーリー定義
  *
  * 各バリアント（Info / Success / Warning / Error）のストーリーを定義する。
  * VRT テスト（vrt/badge.spec.ts）でスクリーンショット比較の対象となる。
  */
-import type { Meta, StoryObj } from "@storybook/react";
-import { expect, within } from "storybook/test";
+import preview from "#.storybook/preview";
 
 import { Badge } from "./Badge";
 
-const meta = {
+const meta = preview.meta({
   // Storybook のサイドバーでの表示パス
   title: "Components/Badge",
   component: Badge,
@@ -19,54 +20,51 @@ const meta = {
       options: ["info", "success", "warning", "error"],
     },
   },
-} satisfies Meta<typeof Badge>;
-
-export default meta;
-type Story = StoryObj<typeof meta>;
+});
 
 /** Info バリアント（青系） */
-export const Info: Story = {
+export const Info = meta.story({
   args: {
     children: "Info",
     variant: "info",
   },
-};
+});
 
 /** Success バリアント（緑系） */
-export const Success: Story = {
+export const Success = meta.story({
   args: {
     children: "Success",
     variant: "success",
   },
-};
+});
 
 /** Warning バリアント（黄系） */
-export const Warning: Story = {
+export const Warning = meta.story({
   args: {
     children: "Warning",
     variant: "warning",
   },
-};
+});
 
 /** Error バリアント（赤系） */
-export const ErrorVariant: Story = {
+export const ErrorVariant = meta.story({
   name: "Error",
   args: {
     children: "Error",
     variant: "error",
   },
-};
+});
 
 /** 件数表示（上限以内） */
-export const WithCount: Story = {
+export const WithCount = meta.story({
   args: {
     count: 5,
     variant: "info",
   },
-};
+});
 
 /** 件数表示（上限超過 → "99+" 表示） */
-export const WithCountOverflow: Story = {
+export const WithCountOverflow = meta.story({
   args: {
     count: 150,
     variant: "error",
@@ -75,10 +73,10 @@ export const WithCountOverflow: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getAllByText("99+")[0]).toBeVisible();
   },
-};
+});
 
 /** 件数表示（負数 → 何も表示されない） */
-export const WithNegativeCount: Story = {
+export const WithNegativeCount = meta.story({
   args: {
     count: -1,
     children: "Fallback",
@@ -89,4 +87,4 @@ export const WithNegativeCount: Story = {
     // 負数の場合は formatCount が空文字を返すため、children の "Fallback" が表示される
     await expect(canvas.getAllByText("Fallback")[0]).toBeVisible();
   },
-};
+});

@@ -1,20 +1,13 @@
-import type { Meta, StoryObj } from "@storybook/react";
-
+import preview from "#.storybook/preview";
 import Home from "@/page";
 
-import { PageDocsPage } from "./PageDocsPage";
+import { pageStoryMeta } from "./page-story-config";
 
-const meta = {
+const meta = preview.meta({
+  ...pageStoryMeta,
   title: "Pages/Home",
   component: Home,
-  parameters: {
-    layout: "fullscreen",
-    docs: { page: PageDocsPage },
-  },
-} satisfies Meta<typeof Home>;
-
-export default meta;
-type Story = StoryObj<typeof meta>;
+});
 
 /** デフォルト表示 */
-export const Default: Story = {};
+export const Default = meta.story();

@@ -20,9 +20,14 @@
     // パスエイリアス
     "paths": {
       "@ui/*": ["./src/*"],
-      "@/*": ["../../apps/web/app/*"]
+      "@/*": ["../../apps/web/app/*"],
+      // CSF Factories のサブパスインポート（import preview from "#.storybook/preview"）を解決する。
+      // package.json の imports フィールドはランタイム用、こちらは TypeScript の型解決用。
+      // rootDir で解決する方法もあるが、apps/web のファイルを参照しているため rootDir を限定できない。
+      "#.storybook/*": ["./.storybook/*"]
     }
   },
-  "include": ["src/**/*"],
+  // css.d.ts: tsgo が .storybook/preview.tsx の CSS import もチェックするため型宣言が必要
+  "include": ["src/**/*", "css.d.ts"],
   "exclude": ["node_modules", "dist", "vrt", "storybook-static"]
 }
