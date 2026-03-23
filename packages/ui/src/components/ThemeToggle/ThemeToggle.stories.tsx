@@ -1,15 +1,16 @@
+import { expect, userEvent, within } from "storybook/test";
+
 /**
  * ThemeToggle コンポーネントの Storybook ストーリー定義
  *
  * テーマ切り替えボタンの2状態（Light / Dark）の表示と
  * クリックによるトグル動作を確認するストーリーを定義する。
  */
-import type { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, within } from "storybook/test";
+import preview from "#.storybook/preview";
 
 import { ThemeToggle } from "./ThemeToggle";
 
-const meta = {
+const meta = preview.meta({
   title: "Components/ThemeToggle",
   component: ThemeToggle,
   decorators: [
@@ -22,16 +23,13 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof ThemeToggle>;
-
-export default meta;
-type Story = StoryObj<typeof meta>;
+});
 
 /** デフォルト状態 */
-export const Default: Story = {};
+export const Default = meta.story();
 
 /** クリックでテーマがトグルすることを検証 */
-export const CycleThemes: Story = {
+export const CycleThemes = meta.story({
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     // ThemeToggle は useEffect でマウント完了するまでプレースホルダーを表示するため、
@@ -50,4 +48,4 @@ export const CycleThemes: Story = {
     const expectedAfterSecond = startsLight ? /ライト/ : /ダーク/;
     await expect(button).toHaveAccessibleName(expectedAfterSecond);
   },
-};
+});

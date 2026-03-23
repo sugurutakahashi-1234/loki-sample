@@ -1,3 +1,6 @@
+import addonA11y from "@storybook/addon-a11y";
+import addonDocs from "@storybook/addon-docs";
+import { definePreview } from "@storybook/nextjs-vite";
 /**
  * Storybook プレビュー設定
  *
@@ -9,9 +12,9 @@
  * Auto モードでは OS の prefers-color-scheme に従う（Playwright の colorScheme 設定が反映される）。
  * Side by side モードではライト・ダーク両方を横並びで表示する。
  */
-
-import type { Decorator, Preview } from "@storybook/react";
+import type { Decorator } from "@storybook/react";
 import { initialize, mswLoader } from "msw-storybook-addon";
+import storybookAddonPseudoStates from "storybook-addon-pseudo-states";
 
 // グローバル CSS を読み込み（Tailwind CSS のベーススタイル + apps/web のクラス検出）
 // UI パッケージのスタイルに加え、apps/web のページで使われるクラスも Tailwind に検出させる
@@ -29,7 +32,9 @@ const withTheme: Decorator = (Story, { globals: { theme } }) => {
     return (
       <div style={{ display: "flex", gap: "24px" }}>
         <div>
-          <div style={{ marginBottom: "4px", fontSize: "12px", color: "#666" }}>
+          <div
+            style={{ marginBottom: "4px", fontSize: "12px", color: "#595959" }}
+          >
             Light
           </div>
           <div className="light bg-background p-4">
@@ -37,7 +42,9 @@ const withTheme: Decorator = (Story, { globals: { theme } }) => {
           </div>
         </div>
         <div>
-          <div style={{ marginBottom: "4px", fontSize: "12px", color: "#999" }}>
+          <div
+            style={{ marginBottom: "4px", fontSize: "12px", color: "#595959" }}
+          >
             Dark
           </div>
           <div className="dark bg-background p-4">
@@ -60,7 +67,7 @@ const withTheme: Decorator = (Story, { globals: { theme } }) => {
   );
 };
 
-const preview: Preview = {
+export default definePreview({
   globalTypes: {
     theme: {
       description: "Theme for components",
@@ -77,13 +84,18 @@ const preview: Preview = {
       },
     },
   },
+
   initialGlobals: {
     theme: "side-by-side",
   },
+
   tags: ["autodocs", "snapshot"],
+
   // msw-storybook-addon: ストーリー描画前に parameters.msw.handlers のハンドラーを MSW に登録する
   loaders: [mswLoader],
+
   decorators: [withTheme],
+
   parameters: {
     controls: {
       // Storybook Controls パネルの自動マッチング設定
@@ -111,6 +123,6 @@ const preview: Preview = {
       test: "error",
     },
   },
-};
 
-export default preview;
+  addons: [addonDocs(), addonA11y(), storybookAddonPseudoStates()],
+});
