@@ -4,13 +4,16 @@
  * セマンティックカラートークン一覧を表示するドキュメントページ。
  * addon-themes でテーマを切り替えると Light / Dark の値がリアルタイムで確認できる。
  */
-import preview from "#.storybook/preview";
+import type { Meta, StoryObj } from "@storybook/react";
 
 import { ColorPalette } from "./ColorPalette";
 
-const meta = preview.meta({
+const meta = {
   title: "Foundations/Color Palette",
   component: ColorPalette,
-});
+} satisfies Meta<typeof ColorPalette>;
 
-export const Default = meta.story();
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};

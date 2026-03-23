@@ -1,15 +1,15 @@
-import path from "node:path";
-
 /**
  * Storybook メイン設定
  *
  * Storybook の基本構成を定義する。
  * フレームワーク、ストーリーの探索パス、Vite プラグインなどを設定。
  */
-import { defineMain } from "@storybook/nextjs-vite/node";
+import path from "node:path";
+
+import type { StorybookConfig } from "@storybook/nextjs-vite";
 import tailwindcss from "@tailwindcss/vite";
 
-export default defineMain({
+const config: StorybookConfig = {
   // ストーリーファイルの探索パターン
   // src/ 配下の全 .stories.ts/.stories.tsx ファイルを対象とする
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(ts|tsx)"],
@@ -74,4 +74,6 @@ export default defineMain({
     };
     return viteConfig;
   },
-});
+};
+
+export default config;

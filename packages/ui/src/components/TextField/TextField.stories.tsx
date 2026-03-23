@@ -1,16 +1,15 @@
-import { expect, userEvent, within } from "storybook/test";
-
 /**
  * TextField コンポーネントの Storybook ストーリー定義
  *
  * 各状態（Default / WithLabel / WithError / WithHelperText / Disabled）のストーリーを定義する。
  * play 関数によるインタラクションテストを含む。
  */
-import preview from "#.storybook/preview";
+import type { Meta, StoryObj } from "@storybook/react";
+import { expect, userEvent, within } from "storybook/test";
 
 import { TextField } from "./TextField";
 
-const meta = preview.meta({
+const meta = {
   title: "Components/TextField",
   component: TextField,
   argTypes: {
@@ -19,17 +18,20 @@ const meta = preview.meta({
       options: ["default", "outlined"],
     },
   },
-});
+} satisfies Meta<typeof TextField>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
 
 /** デフォルト状態 */
-export const Default = meta.story({
+export const Default: Story = {
   args: {
     placeholder: "Enter text...",
   },
-});
+};
 
 /** テキスト入力テスト */
-export const Typing = meta.story({
+export const Typing: Story = {
   args: {
     placeholder: "Enter text...",
   },
@@ -42,18 +44,18 @@ export const Typing = meta.story({
     await userEvent.type(input, "Hello, World!");
     await expect(input).toHaveValue("Hello, World!");
   },
-});
+};
 
 /** ラベル付き */
-export const WithLabel = meta.story({
+export const WithLabel: Story = {
   args: {
     label: "Username",
     placeholder: "Enter username...",
   },
-});
+};
 
 /** エラー状態 */
-export const WithError = meta.story({
+export const WithError: Story = {
   args: {
     label: "Email",
     error: "Invalid email address",
@@ -70,22 +72,22 @@ export const WithError = meta.story({
     const [input] = canvas.getAllByRole("textbox") as [HTMLElement];
     await expect(input).toHaveAttribute("aria-invalid", "true");
   },
-});
+};
 
 /** ヘルパーテキスト付き */
-export const WithHelperText = meta.story({
+export const WithHelperText: Story = {
   args: {
     label: "Password",
     helperText: "Must be at least 8 characters",
     type: "password",
   },
-});
+};
 
 /** 無効化状態 */
-export const Disabled = meta.story({
+export const Disabled: Story = {
   args: {
     label: "Disabled Field",
     placeholder: "Cannot type here",
     disabled: true,
   },
-});
+};

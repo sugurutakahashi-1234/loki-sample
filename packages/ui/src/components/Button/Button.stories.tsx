@@ -1,5 +1,3 @@
-import { expect, fn, userEvent, within } from "storybook/test";
-
 /**
  * Button コンポーネントの Storybook ストーリー定義
  *
@@ -7,11 +5,12 @@ import { expect, fn, userEvent, within } from "storybook/test";
  * 状態（Disabled）のストーリーを定義する。
  * VRT テスト（vrt/button.spec.ts）でスクリーンショット比較の対象となる。
  */
-import preview from "#.storybook/preview";
+import type { Meta, StoryObj } from "@storybook/react";
+import { expect, fn, userEvent, within } from "storybook/test";
 
 import { Button } from "./Button";
 
-const meta = preview.meta({
+const meta = {
   // Storybook のサイドバーでの表示パス
   title: "Components/Button",
   component: Button,
@@ -25,10 +24,13 @@ const meta = preview.meta({
       options: ["sm", "md", "lg"],
     },
   },
-});
+} satisfies Meta<typeof Button>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
 
 /** Primary バリアント（デフォルト） */
-export const Primary = meta.story({
+export const Primary: Story = {
   args: {
     children: "Primary Button",
     variant: "primary",
@@ -43,44 +45,44 @@ export const Primary = meta.story({
     await userEvent.click(button);
     await expect(args.onClick).toHaveBeenCalledTimes(1);
   },
-});
+};
 
 /** Secondary バリアント */
-export const Secondary = meta.story({
+export const Secondary: Story = {
   args: {
     children: "Secondary Button",
     variant: "secondary",
   },
-});
+};
 
 /** Danger バリアント */
-export const Danger = meta.story({
+export const Danger: Story = {
   args: {
     children: "Danger Button",
     variant: "danger",
   },
-});
+};
 
 /** Small サイズ */
-export const Small = meta.story({
+export const Small: Story = {
   args: {
     children: "Small Button",
     size: "sm",
   },
-});
+};
 
 /** Large サイズ */
-export const Large = meta.story({
+export const Large: Story = {
   args: {
     children: "Large Button",
     size: "lg",
   },
-});
+};
 
 /** 無効化状態 */
-export const Disabled = meta.story({
+export const Disabled: Story = {
   args: {
     children: "Disabled Button",
     disabled: true,
   },
-});
+};

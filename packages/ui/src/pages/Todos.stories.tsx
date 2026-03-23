@@ -4,11 +4,11 @@ import {
   createContractLoadingHandlers,
   createTodoHandlers,
 } from "@storybook-vrt-sample/api-contract/mocks";
+import type { Meta, StoryObj } from "@storybook/react";
 
-import preview from "#.storybook/preview";
 import TodosPage from "@/todos/page";
 
-import { pageStoryMeta } from "./page-story-config";
+import { PageDocsPage } from "./PageDocsPage";
 
 const BASE = "http://localhost:3001/api";
 
@@ -18,36 +18,50 @@ const sampleTodos = [
   TodoSchema.parse({ id: "3", title: "Review PR" }),
 ];
 
-const meta = preview.meta({
-  ...pageStoryMeta,
+const meta = {
   title: "Pages/Todos",
   component: TodosPage,
-});
+  parameters: {
+    layout: "fullscreen",
+    docs: { page: PageDocsPage },
+  },
+} satisfies Meta<typeof TodosPage>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
 
 /** デフォルト: 3件の TODO */
-export const Default = meta.story({
-  parameters: { msw: { handlers: createTodoHandlers(BASE, sampleTodos) } },
-});
+export const Default: Story = {
+  parameters: {
+    msw: {
+      handlers: createTodoHandlers(BASE, sampleTodos),
+    },
+  },
+};
 
 /** 空リスト */
-export const Empty = meta.story({
-  parameters: { msw: { handlers: createTodoHandlers(BASE, []) } },
-});
+export const Empty: Story = {
+  parameters: {
+    msw: {
+      handlers: createTodoHandlers(BASE, []),
+    },
+  },
+};
 
 /** API エラー */
-export const FetchError = meta.story({
+export const FetchError: Story = {
   parameters: {
     msw: {
       handlers: createContractErrorHandlers(BASE, contract.todo, ["list"]),
     },
   },
-});
+};
 
 /** ローディング中 */
-export const Loading = meta.story({
+export const Loading: Story = {
   parameters: {
     msw: {
       handlers: createContractLoadingHandlers(BASE, contract.todo, ["list"]),
     },
   },
-});
+};
