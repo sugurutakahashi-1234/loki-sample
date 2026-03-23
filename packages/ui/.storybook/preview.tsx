@@ -27,7 +27,14 @@ import "./styles.css";
 initialize();
 
 const withTheme: Decorator = (Story, { globals: { theme } }) => {
-  if (theme === "side-by-side") {
+  // VRT（vitest browser mode）では Side by side を無効化。
+  // CSF Factories の definePreview が annotations を自動合成するため、
+  // vitest.setup.vrt.ts からの initialGlobals 上書きが効かない。
+  // テーマ切り替えは vis.setup の callback で DOM クラスを直接操作する。
+  const isVitest =
+    typeof window !== "undefined" && "__vitest_browser__" in window;
+
+  if (theme === "side-by-side" && !isVitest) {
     // Light 側に "light" クラスを付与し、OS ダークモード時でもライトテーマを強制する
     return (
       <div style={{ display: "flex", gap: "24px" }}>
