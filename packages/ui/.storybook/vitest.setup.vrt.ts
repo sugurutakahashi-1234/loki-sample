@@ -1,3 +1,6 @@
+import { vis } from "storybook-addon-vis/vitest-setup";
+import { beforeAll } from "vitest";
+
 /**
  * VRT（ビジュアルリグレッションテスト）用 vitest セットアップ
  *
@@ -8,23 +11,13 @@
  * - "snapshot" タグ付きストーリーが自動で VRT 対象になる
  * - 各テーマの callback でダークモードクラスの切り替えと
  *   body の inline-block 化（コンポーネントサイズにフィット）を行う
+ *
+ * CSF Factories ではプレビュー設定から composed.beforeAll を参照する。
+ * https://storybook.js.org/docs/api/csf/csf-next#upgrade-to-csf-next
  */
-import * as a11yAddonAnnotations from "@storybook/addon-a11y/preview";
-import { setProjectAnnotations } from "@storybook/react";
-import { vis, visAnnotations } from "storybook-addon-vis/vitest-setup";
-import { beforeAll } from "vitest";
+import preview from "#.storybook/preview";
 
-import * as previewAnnotations from "./preview";
-
-const annotations = setProjectAnnotations([
-  a11yAddonAnnotations,
-  visAnnotations,
-  previewAnnotations,
-  // VRT ではテーマを vis.setup で制御するため side-by-side を無効化
-  { initialGlobals: { theme: "light" } },
-]);
-
-beforeAll(annotations.beforeAll);
+beforeAll(preview.composed.beforeAll);
 
 /**
  * body をコンポーネントサイズにフィットさせる。
