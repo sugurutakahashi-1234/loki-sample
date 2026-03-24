@@ -108,13 +108,15 @@ jobs:
         working-directory: apps/web
         env:
           DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY }}
+          NEXT_PUBLIC_API_BASE_URL: https://storybook-vrt-sample-api-staging.samonikura100.workers.dev/api
 
-      # Playwright テスト実行（ページ遷移・レスポンシブ検証）
+      # Playwright テスト実行（ページ遷移・レスポンシブ検証 + Staging API 疎通）
       - name: Run Playwright tests
         run: bunx playwright test
         working-directory: apps/web
         env:
           CI: true
+          NEXT_PUBLIC_API_BASE_URL: https://storybook-vrt-sample-api-staging.samonikura100.workers.dev/api
 
       # ────────────────────────────────────────
       # アップロード＆デプロイ
