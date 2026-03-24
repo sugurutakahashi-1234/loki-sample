@@ -1,10 +1,14 @@
 # E2E テストワークフロー
 #
-# 全 PR で起動し、paths-filter でジョブレベル skip する。
+# PR 時: Staging API に疎通して E2E テストを実行
+# main push 時: Production API に疎通して E2E テストを実行（デプロイ後のスモーク確認）
+#
+# paths-filter でジョブレベル skip する。
 # skip されたジョブは GitHub 上で pass 扱いになるため、
 # required status checks と paths フィルタを両立できる。
-# Next.js アプリをビルドし、Playwright でページ遷移やレスポンシブ表示などの機能テストを検証する。
-# VRT（スクリーンショット比較）は Storybook VRT でカバーしているため、ここでは行わない。
+#
+# CI では next build → next start（本番サーバー）でテスト実行。
+# ローカルでは next dev（開発サーバー）で実行（playwright.config.ts で分岐）。
 #
 # 必要な設定:
 #   Secrets:
@@ -13,6 +17,14 @@
 name: 🧪 E2E Tests
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/**"
+      - "packages/ui/**"
+      - "packages/api-contract/**"
+      - "bun.lock"
+      - ".github/workflows/web-e2e.yml"
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
@@ -23,10 +35,9 @@ permissions:
   contents: write
   pull-requests: write
 
-# レポートの出力先プレフィックス
-# PR 時: pr/{PR番号}  （例: pr/42）
-# 手動実行時: manual/{実行ID}  （例: manual/12345）
+# API 接続先: PR → Staging、main push → Production
 env:
+  NEXT_PUBLIC_API_BASE_URL: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'https://storybook-vrt-sample-api-production.samonikura100.workers.dev/api' || 'https://storybook-vrt-sample-api-staging.samonikura100.workers.dev/api' }}
   REPORT_PREFIX: ${{ github.event.pull_request.number && format('pr/{0}', github.event.pull_request.number) || format('manual/{0}', github.run_id) }}
 
 jobs:
@@ -49,6 +60,7 @@ jobs:
             app:
               - 'apps/web/**'
               - 'packages/ui/**'
+              - 'packages/api-contract/**'
               - 'bun.lock'
               - '.github/workflows/web-e2e.yml'
 
@@ -102,21 +114,19 @@ jobs:
       # ビルド → テスト実行
       # ────────────────────────────────────────
 
-      # 現在のブランチで Next.js ビルド
+      # Next.js ビルド（NEXT_PUBLIC_* はビルド時に埋め込まれる）
       - name: Build
         run: bun run build
         working-directory: apps/web
         env:
           DOTENV_PRIVATE_KEY: ${{ secrets.DOTENV_PRIVATE_KEY }}
-          NEXT_PUBLIC_API_BASE_URL: https://storybook-vrt-sample-api-staging.samonikura100.workers.dev/api
 
-      # Playwright テスト実行（ページ遷移・レスポンシブ検証 + Staging API 疎通）
+      # Playwright テスト実行（next start で本番サーバーを起動）
       - name: Run Playwright tests
         run: bunx playwright test
         working-directory: apps/web
         env:
           CI: true
-          NEXT_PUBLIC_API_BASE_URL: https://storybook-vrt-sample-api-staging.samonikura100.workers.dev/api
 
       # ────────────────────────────────────────
       # アップロード＆デプロイ
