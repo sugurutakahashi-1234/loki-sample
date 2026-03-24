@@ -15,6 +15,7 @@
     "🧪": "========== Testing ==========",
     "test": "bun run --filter '*' test",
     "e2e": "bun run --filter web e2e:playwright",
+    "e2e:mock": "NEXT_PUBLIC_MSW_ENABLED=true bun run --filter web e2e:playwright",
     "🎨": "========== Code Quality ==========",
     "typecheck": "bun run --filter '*' typecheck",
     "lint": "oxlint . && oxfmt --check .",
