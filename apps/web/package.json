@@ -41,6 +41,7 @@
     "@types/node": "^25.3.5",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "axe-core": "^4.11.1",
     "msw": "^2.12.14",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.1",
