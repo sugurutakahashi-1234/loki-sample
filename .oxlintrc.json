@@ -24,6 +24,7 @@
         "**/*.config.ts",
         "scripts/**",
         "**/e2e/**",
+        "**/__tests__/**",
         "**/vrt/**",
         "**/.storybook/**"
       ],
