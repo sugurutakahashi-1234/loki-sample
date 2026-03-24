@@ -437,6 +437,96 @@ bunx ultracite init
 bun run test
 ```
 
+### API 結合テスト
+
+oRPC router 内部のビジネスロジック（ハンドラー + Drizzle + D1 SQL）のみを検証する結合テスト。
+Hono の HTTP 層（ルーティング、CORS、OpenAPIHandler）は経由しない。
+
+```bash
+cd apps/api && bun run test
+```
+
+内部的に以下が順番に実行される:
+
+1. `bunx wrangler d1 migrations apply storybook-vrt-sample-db --local`
+   - drizzle/ 配下のマイグレーション SQL をローカル D1（`.wrangler/state/v3` の SQLite ファイル）に適用
+   - `d1_migrations` テーブルで適用済みを追跡し、未適用分だけ実行（冪等。テーブルが増えても速度は変わらない）
+   - Cloudflare API には接続しない。完全にローカル完結
+2. `bun test src/`
+   - `getPlatformProxy()` で同じローカル D1 SQLite ファイルに接続してテスト実行
+   - DB は `wrangler dev` と共有する永続ファイル。テストごとに `beforeEach` で `DELETE FROM` してデータをリセットする
+
+#### テストの実行環境
+
+```
+本番（Web → API）:
+  ブラウザ → OpenAPILink（HTTP）→ Cloudflare Workers → Hono → oRPC router → Drizzle → D1（リモート）
+
+テスト:
+  createRouterClient() → oRPC router → Drizzle → D1（ローカル SQLite）
+  ^^^^^^^^^^^^^^^^^^^^                              ^^^^^^^^^^^^^^^^^^^
+  Hono・HTTP 層を経由しない                          miniflare エミュレータ
+```
+
+- **呼び出し方式**: `createRouterClient()` で oRPC router を同一プロセス内で直接呼び出す。Hono の HTTP 層（ルーティング、CORS、OpenAPIHandler）は経由しない
+- **DB**: miniflare がエミュレートするローカル SQLite ファイル。本番 D1 と SQL の方言は同一（どちらも SQLite）
+- **ランタイム**: テストは Bun、本番は Workers。Hono が抽象化しているため差異の影響は小さい
+
+#### なぜ `createRouterClient` を使うのか（OpenAPILink ではなく）
+
+| 呼び出し方式                       | 仕組み                                        | 用途                                            |
+| ---------------------------------- | --------------------------------------------- | ----------------------------------------------- |
+| `createRouterClient(router)`       | router のハンドラーを同一プロセス内で直接呼ぶ | **API テスト**（サーバー側）                    |
+| `OpenAPILink` + `createORPCClient` | HTTP で別サーバーに通信する                   | **Web アプリ**（`apps/web` → Workers への通信） |
+
+テストでは API サーバーを起動する必要がなく、router のロジックと DB 操作を直接検証できる。
+Web アプリ（`apps/web`）はブラウザから Cloudflare Workers に HTTP 通信するため `OpenAPILink` が必要。
+
+#### 担保できていること
+
+- **oRPC router → Drizzle → D1 の結合**: ハンドラーのロジックと DB 操作が正しく動く
+- **Zod バリデーション**: コントラクトで定義した入出力スキーマが正しく検証される
+- **SQL の正しさ**: INSERT / SELECT / UPDATE が Drizzle 経由で正しく動く（ローカル SQLite で実行）
+
+> 現時点ではハンドラーが薄い CRUD であり、フレームワークの動作確認に近い。
+> 認証・複雑なバリデーション・JOIN クエリ等が追加された時にテストの価値が高まる。
+
+#### 担保できていないこと
+
+| 領域                                        | なぜ担保できないか                                                | カバー方法                                 |
+| ------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------ |
+| Hono 層（ルーティング、CORS、ミドルウェア） | `createRouterClient` は router を直接呼ぶため Hono を経由しない   | E2E                                        |
+| Workers ランタイム固有の挙動                | テストは Bun で動く。`ctx.waitUntil()` 等は検証不可               | vitest-pool-workers で対応可能だが現状不要 |
+| Cloudflare D1 固有の挙動                    | miniflare のエミュレーション。本番 D1 との微妙な差異は検出不可    | E2E（Staging API 疎通）                    |
+| ネットワーク層                              | インプロセス呼び出し。DNS, TLS, タイムアウト等は通らない          | E2E                                        |
+| フロントエンド → API の結合                 | API 単体テストの範囲外                                            | E2E                                        |
+| デプロイ設定（env, バインディング名）       | ローカル設定でテスト。Staging/Production 固有の設定ミスは検出不可 | Staging デプロイ後のスモークテスト         |
+
+#### テスト戦略の選択肢と採用理由
+
+API テストにはいくつかのアプローチを検討し、**C. getPlatformProxy()** を採用した。
+
+| 選択肢                             | 概要                                                                               | 本番一致度             | セットアップ               | 採用     |
+| ---------------------------------- | ---------------------------------------------------------------------------------- | ---------------------- | -------------------------- | -------- |
+| A. D1 モック手書き（bun:sqlite）   | bun:sqlite で D1Database 互換オブジェクトを自作し、`app.request()` の第3引数で注入 | 高い                   | 86行のアダプター実装が必要 | -        |
+| B. DB なし（インメモリ配列）       | `createRouter(null)` でインメモリフォールバックをテスト                            | 低い（SQL を通らない） | なし                       | -        |
+| **C. wrangler getPlatformProxy()** | **wrangler のローカルエミュレータから D1 バインディングを取得。bun:test のまま**   | **非常に高い**         | **数行**                   | **採用** |
+| D. @cloudflare/vitest-pool-workers | Cloudflare 公式。miniflare 内でテスト実行、全バインディング自動エミュレート        | 最も高い               | vitest.config.ts + setup   | -        |
+
+**不採用理由:**
+
+- **A**: D1 の内部 API を手実装する必要があり、D1 API 変更への追従コストがかかる。R2 追加時にもモックが必要
+- **B**: SQL パスを通らないため、SQL のバグを検出できない
+- **D**: テストランナーが vitest に変わり bun:test と分裂する。Workers ランタイム固有の挙動の検証は、Hono が抽象化しているこのプロジェクトでは不要。Workers API を直接叩くコード（`ctx.waitUntil()`、Durable Objects 等）が増えた場合に再検討
+
+**C を採用した理由:**
+
+1. **モック不要**: `getPlatformProxy()` を呼ぶだけで D1 バインディングを取得
+2. **bun:test のまま**: テストランナーの変更なし。モノレポ全体で統一
+3. **本番に近い**: miniflare がローカル D1 を提供。Drizzle → D1 の実 SQL パスをテスト
+4. **将来の拡張性**: R2 追加時も `env.R2` で取得可能
+5. **マイグレーション管理が不要**: `wrangler d1 migrations apply --local` で冪等に適用。テストコード内でのマイグレーション処理が不要
+
 ### Storybook テスト（play 関数 + a11y）
 
 ストーリーの play 関数とアクセシビリティチェックを light / dark 両モードで実行します。
