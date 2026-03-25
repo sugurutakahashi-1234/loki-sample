@@ -4,7 +4,7 @@
 # Next.js Web アプリを OpenNext 経由で Cloudflare Workers へデプロイする。
 #
 # 3環境構成:
-#   PR              → staging Worker に versions upload（Preview URL 発行）
+#   PR              → PR ごとの動的 Worker を作成（PR番号+ブランチ名入り URL）
 #   main push       → staging Worker にライブデプロイ
 #   workflow_dispatch → production Worker にライブデプロイ
 #
@@ -13,7 +13,7 @@
 # required status checks と paths フィルタを両立できる。
 #
 # ビルドフロー:
-#   opennextjs-cloudflare build → .open-next/ に出力 → wrangler deploy/versions upload
+#   opennextjs-cloudflare build → .open-next/ に出力 → wrangler deploy
 #
 # 必要な設定:
 #   Secrets:
@@ -92,6 +92,26 @@ jobs:
       # ビルド & デプロイ
       # ────────────────────────────────────────
 
+      # PR 時: 動的 Worker 名を計算（PR番号+ブランチ名）
+      - name: Compute preview worker name
+        if: github.event_name == 'pull_request'
+        id: preview
+        run: |
+          BRANCH=$(echo "${{ github.head_ref }}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          WORKER_NAME="storybook-vrt-sample-web-pr-${{ github.event.pull_request.number }}-${BRANCH}"
+          WORKER_NAME=$(echo "$WORKER_NAME" | cut -c1-54 | sed 's/-$//')
+          echo "worker-name=$WORKER_NAME" >> $GITHUB_OUTPUT
+
+      # PR 時: wrangler.jsonc の staging env を動的 Worker 名に書き換え
+      # WORKER_SELF_REFERENCE が自身を正しく参照するために必要
+      - name: Override wrangler config for preview
+        if: github.event_name == 'pull_request'
+        working-directory: apps/web
+        run: |
+          WORKER_NAME="${{ steps.preview.outputs.worker-name }}"
+          sed -i 's/"name": "storybook-vrt-sample-web-staging"/"name": "'"$WORKER_NAME"'"/' wrangler.jsonc
+          sed -i 's/"service": "storybook-vrt-sample-web-staging"/"service": "'"$WORKER_NAME"'"/' wrangler.jsonc
+
       # OpenNext で Next.js を Cloudflare Workers 用にビルド
       # dotenvx で環境別 .env を読み込み、NEXT_PUBLIC_* をビルドに埋め込む
       # workflow_dispatch → .env.production、それ以外 → .env.development（Staging API）
@@ -99,7 +119,7 @@ jobs:
         working-directory: apps/web
         run: bunx dotenvx run -f .env.${{ env.DEPLOY_ENV }} -- bun run build:cf
 
-      # PR → versions upload（Preview URL 発行）、main push / workflow_dispatch → deploy（ライブ）
+      # PR → 動的 Worker にデプロイ、main push → staging、workflow_dispatch → production
       - name: Deploy to Cloudflare Workers
         id: deploy
         uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
@@ -108,7 +128,7 @@ jobs:
           accountId: 95d6c4c8536abbe739beadf65c380ae4
           workingDirectory: apps/web
           packageManager: bun
-          command: ${{ github.event_name == 'pull_request' && 'versions upload' || 'deploy' }} --env ${{ env.WRANGLER_ENV }}
+          command: deploy --env ${{ env.WRANGLER_ENV }}
 
       # ────────────────────────────────────────
       # レポート
@@ -129,4 +149,4 @@ jobs:
 
             | Key | URL |
             |-----|-----|
-            | Preview | ${{ steps.deploy.outputs.deployment-url }} |
+            | Preview | https://${{ steps.preview.outputs.worker-name }}.samonikura100.workers.dev |
