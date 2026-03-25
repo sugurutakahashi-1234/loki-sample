@@ -10,9 +10,10 @@
  * テストデータ: ユニークなプレフィックス `[E2E]` 付きで作成。Staging DB に残るが使い捨て前提。
  *
  * 実行（ローカル）:
- *   dotenvx run -f .env -f .env.staging -- bunx playwright test e2e/todos.test.ts
+ *   bunx playwright test e2e/todos.test.ts
+ *   → next dev が dotenvx --convention=nextjs で .env.development を自動読み込み
  *
- * API URL は .env.staging / .env.production で管理。CI では DEPLOY_ENV で自動切り替え。
+ * API URL は .env.development / .env.production で管理。CI では DEPLOY_ENV で自動切り替え。
  */
 import { expect, test } from "@playwright/test";
 
