@@ -99,7 +99,7 @@ jobs:
         run: |
           BRANCH=$(echo "${{ github.head_ref }}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
           WORKER_NAME="storybook-vrt-sample-web-pr-${{ github.event.pull_request.number }}-${BRANCH}"
-          WORKER_NAME=$(echo "$WORKER_NAME" | cut -c1-63 | sed 's/-$//')
+          WORKER_NAME=$(echo "$WORKER_NAME" | cut -c1-54 | sed 's/-$//')
           echo "worker-name=$WORKER_NAME" >> $GITHUB_OUTPUT
 
       # PR 時: wrangler.jsonc の staging env を動的 Worker 名に書き換え

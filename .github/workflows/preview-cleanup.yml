@@ -32,8 +32,8 @@ jobs:
         run: |
           BRANCH=$(echo "${{ github.head_ref }}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
           PR_NUM=${{ github.event.pull_request.number }}
-          WEB_NAME=$(echo "storybook-vrt-sample-web-pr-${PR_NUM}-${BRANCH}" | cut -c1-63 | sed 's/-$//')
-          API_NAME=$(echo "storybook-vrt-sample-api-pr-${PR_NUM}-${BRANCH}" | cut -c1-63 | sed 's/-$//')
+          WEB_NAME=$(echo "storybook-vrt-sample-web-pr-${PR_NUM}-${BRANCH}" | cut -c1-54 | sed 's/-$//')
+          API_NAME=$(echo "storybook-vrt-sample-api-pr-${PR_NUM}-${BRANCH}" | cut -c1-54 | sed 's/-$//')
           echo "web-name=$WEB_NAME" >> $GITHUB_OUTPUT
           echo "api-name=$API_NAME" >> $GITHUB_OUTPUT
 
