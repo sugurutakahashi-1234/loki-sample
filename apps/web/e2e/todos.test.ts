@@ -11,9 +11,9 @@
  *
  * 実行（ローカル）:
  *   bunx playwright test e2e/todos.test.ts
- *   → next dev が dotenvx --convention=nextjs で .env.development を自動読み込み
+ *   → next dev が dotenvx -f .env.staging で Staging API URL を読み込み
  *
- * API URL は .env.development / .env.production で管理。CI では DEPLOY_ENV で自動切り替え。
+ * API URL は .env.staging / .env.production で管理。CI では DEPLOY_ENV で自動切り替え。
  */
 import { expect, test } from "@playwright/test";
 
