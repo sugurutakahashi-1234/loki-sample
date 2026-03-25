@@ -922,10 +922,10 @@ dotenvx run -- terraform apply
 
 Next.js の規約に従い、環境別ファイルで管理。`dotenvx --convention=nextjs` で NODE_ENV に基づいて自動選択される。
 
-| 変数                         | 用途                   | .env.development              | .env.production               |
-| ---------------------------- | ---------------------- | ----------------------------- | ----------------------------- |
-| `NEXT_PUBLIC_API_BASE_URL`   | API サーバーの接続先   | Staging API URL               | Production API URL            |
-| `NEXT_PUBLIC_SENTRY_DSN`     | Sentry エラー監視      | 共通（同一 DSN）              | 共通（同一 DSN）              |
+| 変数                       | 用途                 | .env.development | .env.production    |
+| -------------------------- | -------------------- | ---------------- | ------------------ |
+| `NEXT_PUBLIC_API_BASE_URL` | API サーバーの接続先 | Staging API URL  | Production API URL |
+| `NEXT_PUBLIC_SENTRY_DSN`   | Sentry エラー監視    | 共通（同一 DSN） | 共通（同一 DSN）   |
 
 > **Note:** 現在は `NEXT_PUBLIC_*`（クライアント公開変数）のみで暗号化不要。
 > Better Auth 導入時に `AUTH_SECRET` 等のサーバー専用変数を追加する場合:
