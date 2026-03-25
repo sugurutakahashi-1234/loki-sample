@@ -1,0 +1,54 @@
+# ==============================================
+# Preview Worker クリーンアップワークフロー
+# ==============================================
+# PR クローズ時に、PR ごとに作成された動的 Preview Worker を削除する。
+#
+# Web / API デプロイ CI が PR 時に作成する動的 Worker:
+#   Web: storybook-vrt-sample-web-pr-{number}-{branch}
+#   API: storybook-vrt-sample-api-pr-{number}-{branch}
+#
+# Worker が存在しない場合（paths-filter でデプロイがスキップされた場合等）も
+# --force で安全に完了する。
+#
+# 必要な設定:
+#   Secrets:
+#     CLOUDFLARE_API_TOKEN    — Cloudflare API Token
+#       権限: Workers Scripts: Edit
+# ==============================================
+name: 🧹 Preview Worker Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    name: 🧹 Delete Preview Workers
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Compute preview worker names
+        id: preview
+        run: |
+          BRANCH=$(echo "${{ github.head_ref }}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          PR_NUM=${{ github.event.pull_request.number }}
+          WEB_NAME=$(echo "storybook-vrt-sample-web-pr-${PR_NUM}-${BRANCH}" | cut -c1-63 | sed 's/-$//')
+          API_NAME=$(echo "storybook-vrt-sample-api-pr-${PR_NUM}-${BRANCH}" | cut -c1-63 | sed 's/-$//')
+          echo "web-name=$WEB_NAME" >> $GITHUB_OUTPUT
+          echo "api-name=$API_NAME" >> $GITHUB_OUTPUT
+
+      - name: Delete Web preview worker
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: 95d6c4c8536abbe739beadf65c380ae4
+          command: delete --name ${{ steps.preview.outputs.web-name }} --force
+
+      - name: Delete API preview worker
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: 95d6c4c8536abbe739beadf65c380ae4
+          command: delete --name ${{ steps.preview.outputs.api-name }} --force
