@@ -48,7 +48,9 @@ app.use("*", cors());
  */
 app.all("/api/*", async (c) => {
   const db = c.env.DB ? createDb(c.env.DB) : null;
-  const deployEnv = c.env.DEPLOY_ENV ?? "local";
+  const rawEnv = c.env.DEPLOY_ENV ?? "local";
+  const prMatch = rawEnv.match(/pr-(\d+)/);
+  const deployEnv = prMatch ? `pr-${prMatch[1]}` : rawEnv;
   const router = createRouter(db, deployEnv);
   const handler = new OpenAPIHandler(router);
   const { response } = await handler.handle(c.req.raw, {
