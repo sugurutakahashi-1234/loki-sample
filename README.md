@@ -22,11 +22,11 @@
 
 ### Staging URL
 
-| サービス         | URL                                                                            |
-| ---------------- | ------------------------------------------------------------------------------ |
-| Web (Staging)    | https://storybook-vrt-sample-web-staging.samonikura100.workers.dev             |
-| API (Staging)    | https://storybook-vrt-sample-api-staging.samonikura100.workers.dev/api         |
-| API Health Check | https://storybook-vrt-sample-api-staging.samonikura100.workers.dev/api/health  |
+| サービス         | URL                                                                           |
+| ---------------- | ----------------------------------------------------------------------------- |
+| Web (Staging)    | https://storybook-vrt-sample-web-staging.samonikura100.workers.dev            |
+| API (Staging)    | https://storybook-vrt-sample-api-staging.samonikura100.workers.dev/api        |
+| API Health Check | https://storybook-vrt-sample-api-staging.samonikura100.workers.dev/api/health |
 
 Storybook コンポーネントのビジュアルリグレッションテスト（VRT）と E2E テスト（機能テスト + ページレベル a11y）のサンプルプロジェクトです。
 
