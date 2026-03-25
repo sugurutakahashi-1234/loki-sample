@@ -14,12 +14,19 @@
 #   Secrets:
 #     CLOUDFLARE_API_TOKEN    — Cloudflare API Token
 #       権限: Workers Scripts: Edit
+#
+# wrangler delete は KV namespaces API へのアクセスを試みるため
+# 追加権限が必要になる。Cloudflare REST API を直接叩くことで
+# Workers Scripts: Edit 権限のみで削除できる。
 # ==============================================
 name: 🧹 Preview Worker Cleanup
 
 on:
   pull_request:
     types: [closed]
+
+env:
+  CLOUDFLARE_ACCOUNT_ID: 95d6c4c8536abbe739beadf65c380ae4
 
 jobs:
   cleanup:
@@ -37,18 +44,22 @@ jobs:
           echo "web-name=$WEB_NAME" >> $GITHUB_OUTPUT
           echo "api-name=$API_NAME" >> $GITHUB_OUTPUT
 
+      # Cloudflare REST API で直接削除（wrangler delete は KV 権限を要求するため使わない）
+      # 404（Worker 未作成）も成功扱いにする
       - name: Delete Web preview worker
         continue-on-error: true
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: 95d6c4c8536abbe739beadf65c380ae4
-          command: delete --name ${{ steps.preview.outputs.web-name }} --force
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+            "https://api.cloudflare.com/client/v4/accounts/${{ env.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/${{ steps.preview.outputs.web-name }}" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}")
+          echo "Web worker delete: HTTP $STATUS"
+          [[ "$STATUS" == "200" || "$STATUS" == "404" ]]
 
       - name: Delete API preview worker
         continue-on-error: true
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: 95d6c4c8536abbe739beadf65c380ae4
-          command: delete --name ${{ steps.preview.outputs.api-name }} --force
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+            "https://api.cloudflare.com/client/v4/accounts/${{ env.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/${{ steps.preview.outputs.api-name }}" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}")
+          echo "API worker delete: HTTP $STATUS"
+          [[ "$STATUS" == "200" || "$STATUS" == "404" ]]
