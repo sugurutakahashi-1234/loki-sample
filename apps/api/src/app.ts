@@ -33,7 +33,9 @@ import { createRouter } from "./router.js";
  * wrangler.jsonc の [[d1_databases]] binding = "DB" に対応する。
  * Bun ローカル開発では D1 バインディングが存在しないため optional にしている。
  */
-export const app = new Hono<{ Bindings: { DB?: D1Database } }>();
+export const app = new Hono<{
+  Bindings: { DB?: D1Database; DEPLOY_ENV?: string };
+}>();
 
 app.use("*", cors());
 
@@ -46,7 +48,8 @@ app.use("*", cors());
  */
 app.all("/api/*", async (c) => {
   const db = c.env.DB ? createDb(c.env.DB) : null;
-  const router = createRouter(db);
+  const deployEnv = c.env.DEPLOY_ENV ?? "local";
+  const router = createRouter(db, deployEnv);
   const handler = new OpenAPIHandler(router);
   const { response } = await handler.handle(c.req.raw, {
     prefix: "/api",

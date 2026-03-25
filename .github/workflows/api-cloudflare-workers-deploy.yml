@@ -97,7 +97,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: 95d6c4c8536abbe739beadf65c380ae4
           workingDirectory: apps/api
-          command: deploy --env ${{ github.event_name == 'workflow_dispatch' && 'production' || 'staging' }}${{ github.event_name == 'pull_request' && format(' --name {0}', steps.preview.outputs.worker-name) || '' }}
+          command: deploy --env ${{ github.event_name == 'workflow_dispatch' && 'production' || 'staging' }}${{ github.event_name == 'pull_request' && format(' --name {0} --var DEPLOY_ENV:{0}', steps.preview.outputs.worker-name) || '' }}
 
       # ────────────────────────────────────────
       # レポート
