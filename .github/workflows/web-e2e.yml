@@ -123,6 +123,12 @@ jobs:
       #   PR 時は Staging API でテストしたいので、DEPLOY_ENV に応じて
       #   .env.development（Staging）or .env.production を -f で明示指定する。
       #
+      #   NODE_ENV=development next build で回避しない理由:
+      #   Next.js は NODE_ENV=production でのビルドを前提としており、
+      #   development でビルドすると React が開発モード（パフォーマンス警告、DevTools 有効）
+      #   のままバンドルされ、最適化（minify、tree-shaking）も無効になる。
+      #   本番と異なるバンドルでの E2E テストは「本番に近い環境で検証する」目的に反する。
+      #
       #   bunx dotenvx を使う理由:
       #   CI にグローバルの dotenvx はインストールされていないが、
       #   bunx 経由なら devDependencies の @dotenvx/dotenvx を使える。
