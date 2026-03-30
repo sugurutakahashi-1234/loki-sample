@@ -17,4 +17,10 @@ import { DEFAULT_API_BASE_URL } from "@/lib/constants";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL;
 
-export const worker = setupWorker(...createTodoHandlers(API_BASE_URL));
+// msw がモノレポ内で複数コピーされるため HttpHandler と RequestHandler の
+// private property が別宣言扱いになる。ランタイムでは同一型なので安全。
+export const worker = setupWorker(
+  ...(createTodoHandlers(API_BASE_URL) as unknown as Parameters<
+    typeof setupWorker
+  >)
+);
